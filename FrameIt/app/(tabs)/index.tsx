@@ -1,75 +1,178 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React from "react";
+import { Text, View, TouchableOpacity, ScrollView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { homeStyles as styles } from "../../styles";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function Index() {
+  const quickStats = {
+    level: 9,
+    totalXP: 5890,
+    questsCompleted: 23,
+    locationsVisited: 45,
+    currentStreak: 7,
+  };
 
-export default function HomeScreen() {
+  const nearbyQuests = [
+    {
+      id: 1,
+      title: "Urban Explorer",
+      location: "Downtown",
+      xp: 150,
+      distance: "0.8km",
+    },
+    {
+      id: 2,
+      title: "Street Art Hunter",
+      location: "Arts District",
+      xp: 200,
+      distance: "1.2km",
+    },
+    {
+      id: 3,
+      title: "Architecture Seeker",
+      location: "Business District",
+      xp: 300,
+      distance: "2.1km",
+    },
+  ];
+
+  const achievements = [
+    { id: 1, icon: "🏆", title: "First Quest", unlocked: true },
+    { id: 2, icon: "🗺️", title: "Explorer", unlocked: true },
+    { id: 3, icon: "📸", title: "Photographer", unlocked: true },
+    { id: 4, icon: "⭐", title: "Rising Star", unlocked: false },
+  ];
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Welcome Section */}
+      <View style={styles.welcomeSection}>
+        <Text style={styles.welcomeTitle}>Ready for Adventure? 🗺️</Text>
+        <Text style={styles.welcomeSubtitle}>
+          Discover amazing locations and capture the world around you
+        </Text>
+      </View>
+
+      {/* Level & XP Progress */}
+      <View style={styles.levelSection}>
+        <View style={styles.levelHeader}>
+          <View style={styles.levelBadge}>
+            <Text style={styles.levelText}>Level {quickStats.level}</Text>
+          </View>
+          <View style={styles.xpContainer}>
+            <Ionicons name="star" size={16} color="#FFD700" />
+            <Text style={styles.xpText}>
+              {quickStats.totalXP.toLocaleString()} XP
+            </Text>
+          </View>
+        </View>
+        <View style={styles.progressBar}>
+          <View style={[styles.progressFill, { width: "70%" }]} />
+        </View>
+        <Text style={styles.progressText}>2,110 XP to Level 10</Text>
+      </View>
+
+      {/* Quick Stats */}
+      <View style={styles.statsGrid}>
+        <View style={styles.statCard}>
+          <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
+          <Text style={styles.statNumber}>{quickStats.questsCompleted}</Text>
+          <Text style={styles.statLabel}>Quests Completed</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Ionicons name="location" size={32} color="#FF5722" />
+          <Text style={styles.statNumber}>{quickStats.locationsVisited}</Text>
+          <Text style={styles.statLabel}>Places Visited</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Ionicons name="flame" size={32} color="#FF9800" />
+          <Text style={styles.statNumber}>{quickStats.currentStreak}</Text>
+          <Text style={styles.statLabel}>Day Streak</Text>
+        </View>
+      </View>
+
+      {/* Nearby Quests */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>🎯 Quests Near You</Text>
+          <TouchableOpacity onPress={() => router.push("/(tabs)/challenges")}>
+            <Text style={styles.seeAllText}>See All</Text>
+          </TouchableOpacity>
+        </View>
+        {nearbyQuests.map((quest) => (
+          <TouchableOpacity key={quest.id} style={styles.questCard}>
+            <View style={styles.questInfo}>
+              <Text style={styles.questTitle}>{quest.title}</Text>
+              <View style={styles.questDetails}>
+                <Ionicons name="location-outline" size={14} color="#666" />
+                <Text style={styles.questLocation}>
+                  {quest.location} • {quest.distance}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.questReward}>
+              <Ionicons name="star" size={16} color="#FFD700" />
+              <Text style={styles.questXP}>{quest.xp} XP</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Recent Achievements */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>🏆 Recent Achievements</Text>
+        <View style={styles.achievementGrid}>
+          {achievements.map((achievement) => (
+            <View
+              key={achievement.id}
+              style={[
+                styles.achievementCard,
+                !achievement.unlocked && styles.lockedAchievement,
+              ]}
+            >
+              <Text style={styles.achievementIcon}>{achievement.icon}</Text>
+              <Text
+                style={[
+                  styles.achievementTitle,
+                  !achievement.unlocked && styles.lockedText,
+                ]}
+              >
+                {achievement.title}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {/* Quick Actions */}
+      <View style={styles.actionsSection}>
+        <TouchableOpacity
+          style={styles.primaryAction}
+          onPress={() => router.push("/(tabs)/challenges")}
+        >
+          <Ionicons name="map" size={24} color="white" />
+          <Text style={styles.primaryActionText}>Start New Quest</Text>
+        </TouchableOpacity>
+
+        <View style={styles.secondaryActions}>
+          <TouchableOpacity
+            style={styles.secondaryAction}
+            onPress={() => router.push("/(tabs)/gallery")}
+          >
+            <Ionicons name="camera" size={20} color="#007AFF" />
+            <Text style={styles.secondaryActionText}>View Discoveries</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.secondaryAction}
+            onPress={() => router.push("/(tabs)/leaderboard")}
+          >
+            <Ionicons name="trophy" size={20} color="#007AFF" />
+            <Text style={styles.secondaryActionText}>Rankings</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

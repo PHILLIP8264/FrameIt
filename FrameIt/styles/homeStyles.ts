@@ -1,0 +1,260 @@
+import { StyleSheet } from "react-native";
+
+export const homeStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "transparent",
+    padding: 20,
+  },
+
+  welcomeSection: {
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 8,
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: "#666",
+    lineHeight: 22,
+  },
+
+  levelSection: {
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  levelHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  levelBadge: {
+    backgroundColor: "#007AFF",
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  levelText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  xpContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  xpText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#FFD700",
+    marginLeft: 5,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: "#E0E0E0",
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#007AFF",
+    borderRadius: 4,
+  },
+  progressText: {
+    fontSize: 12,
+    color: "#666",
+    textAlign: "center",
+  },
+
+  statsGrid: {
+    flexDirection: "row",
+    marginBottom: 20,
+    gap: 10,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: 15,
+    padding: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statNumber: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 8,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 4,
+  },
+
+  section: {
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  seeAllText: {
+    fontSize: 14,
+    color: "#007AFF",
+    fontWeight: "500",
+  },
+
+  questCard: {
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  questInfo: {
+    flex: 1,
+  },
+  questTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 4,
+  },
+  questDetails: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  questLocation: {
+    fontSize: 12,
+    color: "#666",
+    marginLeft: 4,
+  },
+  questReward: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  questXP: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#FFD700",
+    marginLeft: 4,
+  },
+
+  achievementGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  achievementCard: {
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: 12,
+    padding: 15,
+    alignItems: "center",
+    flex: 1,
+    minWidth: "22%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  lockedAchievement: {
+    opacity: 0.5,
+  },
+  achievementIcon: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  achievementTitle: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+  },
+  lockedText: {
+    color: "#999",
+  },
+
+  actionsSection: {
+    marginBottom: 30,
+  },
+  primaryAction: {
+    backgroundColor: "#007AFF",
+    borderRadius: 15,
+    padding: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 15,
+    shadowColor: "#007AFF",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  primaryActionText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
+  secondaryActions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  secondaryAction: {
+    flex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: 12,
+    padding: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#007AFF",
+  },
+  secondaryActionText: {
+    color: "#007AFF",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginLeft: 8,
+  },
+});
