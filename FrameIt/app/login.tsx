@@ -19,29 +19,54 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const { signIn } = useAuth();
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
+    // Clear previous errors
+    setEmailError("");
+    setPasswordError("");
+
+    // Validate fields and set errors
+    let hasErrors = false;
+
+    if (!email) {
+      setEmailError("Email is required");
+      hasErrors = true;
+    }
+
+    if (!password) {
+      setPasswordError("Password is required");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
 
     setLoading(true);
     try {
       await signIn(email, password);
-      router.replace("/(tabs)");
+      // Add a small delay to prevent UI flickering
+      setTimeout(() => {
+        router.replace("/(tabs)");
+      }, 100);
     } catch (error: any) {
       console.error("Login error:", error);
       Alert.alert("Login Failed", error.message);
-    } finally {
       setLoading(false);
     }
   };
 
+  const handleGoToSignup = () => {
+    router.push("/signup");
+  };
+
   return (
     <KeyboardAvoidingView
+      key="login-screen"
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
@@ -54,49 +79,75 @@ export default function Login() {
         </View>
 
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="mail-outline"
-              size={20}
-              color="#666"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="lock-closed-outline"
-              size={20}
-              color="#666"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                emailError && styles.inputContainerError,
+              ]}
             >
               <Ionicons
-                name={showPassword ? "eye-outline" : "eye-off-outline"}
+                name="mail-outline"
                 size={20}
-                color="#666"
+                color={emailError ? "#FF3B30" : "#666"}
+                style={styles.inputIcon}
               />
-            </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (emailError) setEmailError(""); // Clear error when user starts typing
+                }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+            {emailError ? (
+              <Text style={styles.errorText}>{emailError}</Text>
+            ) : null}
+          </View>
+
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                passwordError && styles.inputContainerError,
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color={passwordError ? "#FF3B30" : "#666"}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (passwordError) setPasswordError(""); // Clear error when user starts typing
+                }}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  size={20}
+                  color={passwordError ? "#FF3B30" : "#666"}
+                />
+              </TouchableOpacity>
+            </View>
+            {passwordError ? (
+              <Text style={styles.errorText}>{passwordError}</Text>
+            ) : null}
           </View>
 
           <TouchableOpacity style={styles.forgotPassword}>
@@ -121,7 +172,8 @@ export default function Login() {
 
           <TouchableOpacity
             style={styles.signupButton}
-            onPress={() => router.push("/signup")}
+            onPress={handleGoToSignup}
+            disabled={loading}
           >
             <Text style={styles.signupButtonText}>
               Don't have an account? Sign Up
@@ -173,6 +225,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  inputContainerError: {
+    borderColor: "#FF3B30",
+    marginBottom: 4,
   },
   inputIcon: {
     marginRight: 12,
@@ -182,6 +240,13 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     fontSize: 16,
     color: "#333",
+  },
+  errorText: {
+    color: "#FF3B30",
+    fontSize: 12,
+    marginLeft: 16,
+    marginBottom: 12,
+    fontWeight: "500",
   },
   eyeIcon: {
     padding: 4,

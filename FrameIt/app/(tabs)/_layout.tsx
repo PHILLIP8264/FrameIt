@@ -48,6 +48,7 @@ export default function TabLayout() {
             backgroundColor: "rgba(255, 255, 255, 0.9)",
           },
           sceneStyle: { backgroundColor: "transparent" },
+          tabBarHideOnKeyboard: true,
         }}
       >
         <Tabs.Screen
