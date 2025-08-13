@@ -1,59 +1,213 @@
-import React from "react";
-import { Text, View, TouchableOpacity, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  RefreshControl,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { homeStyles as styles } from "../../styles";
+import { useAuth } from "../../contexts/AuthContext";
+import FirestoreService from "../../services/FirestoreService";
+import LocationService from "../../services/LocationService";
+import {
+  User,
+  CompletedQuest,
+  Quest,
+  QuestAttempt,
+} from "../../types/database";
+import {
+  doc,
+  onSnapshot,
+  collection,
+  query,
+  where,
+  limit,
+  orderBy,
+} from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 export default function Index() {
-  const quickStats = {
-    level: 9,
-    totalXP: 5890,
-    questsCompleted: 23,
-    locationsVisited: 45,
-    currentStreak: 7,
+  const { user } = useAuth();
+  const [userData, setUserData] = useState<User | null>(null);
+  const [completedQuests, setCompletedQuests] = useState<CompletedQuest[]>([]);
+  const [nearbyQuests, setNearbyQuests] = useState<
+    (Quest & { distance?: number })[]
+  >([]);
+  const [activeAttempts, setActiveAttempts] = useState<QuestAttempt[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [userLocation, setUserLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [locationPermission, setLocationPermission] = useState<boolean>(false);
+
+  // Load all data
+  const loadData = async () => {
+    if (!user?.uid) return;
+
+    try {
+      const [questsData, completedData, attemptsData] = await Promise.all([
+        userLocation
+          ? FirestoreService.getNearbyQuests(userLocation, 10, 5)
+          : Promise.resolve([]),
+        FirestoreService.getCompletedQuests(user.uid),
+        FirestoreService.getUserQuestAttempts(user.uid),
+      ]);
+
+      setNearbyQuests(questsData);
+      setCompletedQuests(completedData);
+      setActiveAttempts(
+        attemptsData.filter((attempt) => attempt.status === "in-progress")
+      );
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
   };
 
-  const nearbyQuests = [
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
+
+  // Real-time listener for user data
+  useEffect(() => {
+    if (!user?.uid) {
+      setLoading(false);
+      return;
+    }
+
+    const unsubscribe = onSnapshot(
+      doc(db, "users", user.uid),
+      (doc) => {
+        if (doc.exists()) {
+          setUserData(doc.data() as User);
+        }
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching user data:", error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user?.uid]);
+
+  // Initialize location services
+  useEffect(() => {
+    const initializeLocation = async () => {
+      try {
+        const permission = await LocationService.requestLocationPermission();
+        setLocationPermission(permission);
+
+        if (permission) {
+          const location = await LocationService.getCurrentLocation();
+          setUserLocation(location);
+        }
+      } catch (error) {
+        console.error("Error initializing location:", error);
+      }
+    };
+
+    initializeLocation();
+  }, []);
+
+  // Load quest and completion data
+  useEffect(() => {
+    if (!user?.uid) return;
+    loadData();
+  }, [user?.uid, userLocation]);
+
+  // Calculate level progress
+  const calculateLevelProgress = (xp: number, level: number) => {
+    const baseXP = 500;
+    const currentLevelXP = baseXP * Math.pow(1.3, level - 1);
+    const nextLevelXP = baseXP * Math.pow(1.3, level);
+    const progressXP = xp - currentLevelXP;
+    const neededXP = nextLevelXP - currentLevelXP;
+    const progressPercentage = Math.max(
+      0,
+      Math.min(100, (progressXP / neededXP) * 100)
+    );
+    const remainingXP = Math.max(0, nextLevelXP - xp);
+
+    return { progressPercentage, remainingXP, nextLevel: level + 1 };
+  };
+
+  const quickStats = {
+    level: userData?.level || 1,
+    totalXP: userData?.xp || 0,
+    questsCompleted: completedQuests.length,
+    currentStreak: userData?.streakCount || 0,
+    activeQuests: activeAttempts.length,
+  };
+
+  const levelProgress = calculateLevelProgress(
+    quickStats.totalXP,
+    quickStats.level
+  );
+
+  // Dynamic achievements based on user progress
+  const achievements = [
     {
       id: 1,
-      title: "Urban Explorer",
-      location: "Downtown",
-      xp: 150,
-      distance: "0.8km",
+      icon: "trophy",
+      title: "First Quest",
+      unlocked: completedQuests.length > 0,
     },
     {
       id: 2,
-      title: "Street Art Hunter",
-      location: "Arts District",
-      xp: 200,
-      distance: "1.2km",
+      icon: "map",
+      title: "Explorer",
+      unlocked: completedQuests.length >= 5,
     },
     {
       id: 3,
-      title: "Architecture Seeker",
-      location: "Business District",
-      xp: 300,
-      distance: "2.1km",
+      icon: "camera",
+      title: "Photographer",
+      unlocked: completedQuests.length >= 10,
+    },
+    {
+      id: 4,
+      icon: "star",
+      title: "Rising Star",
+      unlocked: (userData?.level || 1) >= 5,
     },
   ];
 
-  const achievements = [
-    { id: 1, icon: "🏆", title: "First Quest", unlocked: true },
-    { id: 2, icon: "🗺️", title: "Explorer", unlocked: true },
-    { id: 3, icon: "📸", title: "Photographer", unlocked: true },
-    { id: 4, icon: "⭐", title: "Rising Star", unlocked: false },
-  ];
+  // Get user's display name
+  const displayName = userData?.displayName || user?.displayName || "Explorer";
 
-  return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Welcome Section */}
-      <View style={styles.welcomeSection}>
-        <Text style={styles.welcomeTitle}>Ready for Adventure? 🗺️</Text>
-        <Text style={styles.welcomeSubtitle}>
-          Discover amazing locations and capture the world around you
+  if (loading) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={{ marginTop: 10, color: "#666" }}>
+          Loading your adventure...
         </Text>
       </View>
+    );
+  }
 
+  return (
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       {/* Level & XP Progress */}
       <View style={styles.levelSection}>
         <View style={styles.levelHeader}>
@@ -68,9 +222,17 @@ export default function Index() {
           </View>
         </View>
         <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: "70%" }]} />
+          <View
+            style={[
+              styles.progressFill,
+              { width: `${levelProgress.progressPercentage}%` },
+            ]}
+          />
         </View>
-        <Text style={styles.progressText}>2,110 XP to Level 10</Text>
+        <Text style={styles.progressText}>
+          {levelProgress.remainingXP.toLocaleString()} XP to Level{" "}
+          {levelProgress.nextLevel}
+        </Text>
       </View>
 
       {/* Quick Stats */}
@@ -81,9 +243,9 @@ export default function Index() {
           <Text style={styles.statLabel}>Quests Completed</Text>
         </View>
         <View style={styles.statCard}>
-          <Ionicons name="location" size={32} color="#FF5722" />
-          <Text style={styles.statNumber}>{quickStats.locationsVisited}</Text>
-          <Text style={styles.statLabel}>Places Visited</Text>
+          <Ionicons name="play-circle" size={32} color="#2196F3" />
+          <Text style={styles.statNumber}>{quickStats.activeQuests}</Text>
+          <Text style={styles.statLabel}>Active Quests</Text>
         </View>
         <View style={styles.statCard}>
           <Ionicons name="flame" size={32} color="#FF9800" />
@@ -92,86 +254,115 @@ export default function Index() {
         </View>
       </View>
 
+      {/* Active Quest Progress */}
+      {activeAttempts.length > 0 && (
+        <View style={styles.section}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginBottom: 15,
+            }}
+          >
+            <Ionicons name="play-circle" size={20} color="#007AFF" />
+            <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+              Active Quests
+            </Text>
+          </View>
+          {activeAttempts.map((attempt) => {
+            const quest = nearbyQuests.find(
+              (q) => q.questId === attempt.questId
+            );
+            if (!quest) return null;
+
+            return (
+              <TouchableOpacity
+                key={attempt.attemptId}
+                style={[
+                  styles.questCard,
+                  { borderLeftWidth: 4, borderLeftColor: "#2196F3" },
+                ]}
+                onPress={() => router.push("/(tabs)/challenges")}
+              >
+                <View style={styles.questInfo}>
+                  <Text style={styles.questTitle}>{quest.title}</Text>
+                  <View style={styles.questDetails}>
+                    <Ionicons name="play-circle" size={14} color="#2196F3" />
+                    <Text style={[styles.questLocation, { color: "#2196F3" }]}>
+                      In Progress • Started{" "}
+                      {new Date(attempt.startedAt).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  style={[
+                    styles.questReward,
+                    {
+                      backgroundColor: "#2196F3",
+                      borderRadius: 15,
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                    },
+                  ]}
+                  onPress={() => router.push("/(tabs)/challenges")}
+                >
+                  <Text
+                    style={{ color: "white", fontSize: 12, fontWeight: "bold" }}
+                  >
+                    Continue
+                  </Text>
+                </TouchableOpacity>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      )}
+
       {/* Nearby Quests */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>🎯 Quests Near You</Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Ionicons name="location" size={20} color="#007AFF" />
+            <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+              Quests Near You
+            </Text>
+          </View>
           <TouchableOpacity onPress={() => router.push("/(tabs)/challenges")}>
             <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
         </View>
-        {nearbyQuests.map((quest) => (
-          <TouchableOpacity key={quest.id} style={styles.questCard}>
+        {nearbyQuests.slice(0, 3).map((quest) => (
+          <TouchableOpacity key={quest.questId} style={styles.questCard}>
             <View style={styles.questInfo}>
               <Text style={styles.questTitle}>{quest.title}</Text>
               <View style={styles.questDetails}>
                 <Ionicons name="location-outline" size={14} color="#666" />
                 <Text style={styles.questLocation}>
-                  {quest.location} • {quest.distance}
+                  {quest.location} • {quest.difficulty}
+                </Text>
+              </View>
+              {/* Photo requirements preview */}
+              <View style={styles.questDetails}>
+                <Ionicons name="camera-outline" size={14} color="#666" />
+                <Text style={[styles.questLocation, { fontStyle: "italic" }]}>
+                  {quest.photoRequirements.subjects.slice(0, 2).join(", ")}
+                  {quest.photoRequirements.subjects.length > 2 && "..."}
                 </Text>
               </View>
             </View>
             <View style={styles.questReward}>
               <Ionicons name="star" size={16} color="#FFD700" />
-              <Text style={styles.questXP}>{quest.xp} XP</Text>
+              <Text style={styles.questXP}>{quest.xpReward} XP</Text>
+              {quest.rewards.bonusXP.firstTime > 0 && (
+                <Text
+                  style={{ fontSize: 10, color: "#FF9500", fontWeight: "bold" }}
+                >
+                  +{quest.rewards.bonusXP.firstTime}
+                </Text>
+              )}
             </View>
           </TouchableOpacity>
         ))}
-      </View>
-
-      {/* Recent Achievements */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>🏆 Recent Achievements</Text>
-        <View style={styles.achievementGrid}>
-          {achievements.map((achievement) => (
-            <View
-              key={achievement.id}
-              style={[
-                styles.achievementCard,
-                !achievement.unlocked && styles.lockedAchievement,
-              ]}
-            >
-              <Text style={styles.achievementIcon}>{achievement.icon}</Text>
-              <Text
-                style={[
-                  styles.achievementTitle,
-                  !achievement.unlocked && styles.lockedText,
-                ]}
-              >
-                {achievement.title}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {/* Quick Actions */}
-      <View style={styles.actionsSection}>
-        <TouchableOpacity
-          style={styles.primaryAction}
-          onPress={() => router.push("/(tabs)/challenges")}
-        >
-          <Ionicons name="map" size={24} color="white" />
-          <Text style={styles.primaryActionText}>Start New Quest</Text>
-        </TouchableOpacity>
-
-        <View style={styles.secondaryActions}>
-          <TouchableOpacity
-            style={styles.secondaryAction}
-            onPress={() => router.push("/(tabs)/gallery")}
-          >
-            <Ionicons name="camera" size={20} color="#007AFF" />
-            <Text style={styles.secondaryActionText}>View Discoveries</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.secondaryAction}
-            onPress={() => router.push("/(tabs)/leaderboard")}
-          >
-            <Ionicons name="trophy" size={20} color="#007AFF" />
-            <Text style={styles.secondaryActionText}>Rankings</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </ScrollView>
   );

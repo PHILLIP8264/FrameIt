@@ -1,7 +1,13 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  SafeAreaView,
+} from "react-native";
 import { router } from "expo-router";
 import AuthGuard from "../../components/AuthGuard";
 import { useAuth } from "../../contexts/AuthContext";
@@ -58,7 +64,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="compass-outline" size={size} color={color} />
             ),
-            header: () => <CustomHeader title="🗺️ FrameIt Explorer" />,
+            header: () => <CustomHeader title="FrameIt Explorer" />,
             headerShown: true,
           }}
         />
@@ -69,7 +75,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="map-outline" size={size} color={color} />
             ),
-            header: () => <CustomHeader title="🎯 Active Quests" />,
+            header: () => <CustomHeader title="Active Quests" />,
             headerShown: true,
           }}
         />
@@ -80,7 +86,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="camera-outline" size={size} color={color} />
             ),
-            header: () => <CustomHeader title="📸 Your Discoveries" />,
+            header: () => <CustomHeader title="Your Discoveries" />,
             headerShown: true,
           }}
         />
@@ -91,7 +97,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="trophy-outline" size={size} color={color} />
             ),
-            header: () => <CustomHeader title="🏆 Explorer Rankings" />,
+            header: () => <CustomHeader title="Rankings" />,
             headerShown: true,
           }}
         />

@@ -152,4 +152,76 @@ export const challengesStyles = StyleSheet.create({
   deleteButton: {
     padding: 8,
   },
+  requirementsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  requirementsText: {
+    fontSize: 12,
+    color: "#666",
+    marginLeft: 5,
+    fontStyle: "italic",
+  },
+  availabilityRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  availabilityText: {
+    fontSize: 12,
+    color: "#666",
+    marginLeft: 5,
+    fontStyle: "italic",
+  },
+  analyticsRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "rgba(0, 122, 255, 0.05)",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+  },
+  analyticsItem: {
+    alignItems: "center",
+  },
+  analyticsLabel: {
+    fontSize: 10,
+    color: "#666",
+    textTransform: "uppercase",
+  },
+  analyticsValue: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 2,
+  },
+  bonusText: {
+    fontSize: 10,
+    color: "#FF9500",
+    marginLeft: 8,
+    fontWeight: "bold",
+  },
+  disabledButton: {
+    backgroundColor: "#999",
+  },
+  eligibilityWarning: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 149, 0, 0.1)",
+    borderRadius: 8,
+    padding: 8,
+    marginTop: 8,
+  },
+  eligibilityText: {
+    fontSize: 12,
+    color: "#FF9500",
+    marginLeft: 5,
+    fontStyle: "italic",
+  },
+  mapToggleButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "#F1F5F9",
+  },
 });

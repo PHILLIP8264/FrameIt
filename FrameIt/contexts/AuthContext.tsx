@@ -7,7 +7,8 @@ import {
   onAuthStateChanged,
   updateProfile,
 } from "firebase/auth";
-import { auth } from "../config/firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "../config/firebase";
 
 interface AuthContextType {
   user: User | null;
@@ -18,6 +19,7 @@ interface AuthContextType {
     password: string,
     displayName: string
   ) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -67,16 +69,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email,
         password
       );
+
+      // Update the user's profile in Firebase Auth
       await updateProfile(user, {
         displayName: displayName,
+      });
+
+      // Save user data to Firestore
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(userRef, {
+        userId: user.uid,
+        displayName: displayName,
+        email: email,
+        role: "basic",
+        xp: 0,
+        level: 1,
+        signedUpDate: new Date().toISOString(),
+        streakCount: 0,
+        profileImageUrl: "",
+        tag: "beginner", // Default tag for new users
+        group: null,
       });
     } catch (error) {
       throw error;
     }
   };
 
+  const signInWithGoogle = async () => {
+    // Temporarily disabled - Google Sign-In requires custom development build
+    throw new Error(
+      "Google Sign-In is not available in Expo Go. Please use email/password authentication."
+    );
+  };
+
   const logout = async () => {
     try {
+      // Sign out from Firebase
       await signOut(auth);
     } catch (error) {
       throw error;
@@ -88,6 +116,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     signIn,
     signUp,
+    signInWithGoogle,
     logout,
   };
 

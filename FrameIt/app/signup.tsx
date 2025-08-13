@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -13,7 +13,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
-import { FirestoreService } from "../services/FirestoreService";
+import SwipeButton, { SwipeButtonRef } from "../components/SwipeButton";
+import { db } from "../config/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -28,9 +30,27 @@ export default function Signup() {
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [displayNameError, setDisplayNameError] = useState("");
 
-  const { signUp } = useAuth();
+  const swipeButtonRef = useRef<SwipeButtonRef>(null);
+  const { signUp, signInWithGoogle } = useAuth();
 
-  const handleSignup = async () => {
+  const checkDisplayNameAvailability = async (
+    name: string
+  ): Promise<boolean> => {
+    if (!name.trim()) return true;
+
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("displayName", "==", name.trim()));
+      const querySnapshot = await getDocs(q);
+
+      return querySnapshot.empty;
+    } catch (error) {
+      console.error("Error checking display name availability:", error);
+      return true; // Allow signup if check fails
+    }
+  };
+
+  const handleSignup = useCallback(async () => {
     // Clear previous errors
     setEmailError("");
     setPasswordError("");
@@ -66,40 +86,60 @@ export default function Signup() {
       hasErrors = true;
     }
 
-    if (hasErrors) {
-      return;
-    }
-
     setLoading(true);
-    try {
-      await signUp(email, password, displayName);
 
-      // Create user profile in Firestore
-      const userProfile = {
-        uid: "", // This will be set by Firebase Auth
-        email,
-        displayName,
-        level: 1,
-        totalPoints: 0,
-        challengesCompleted: 0,
-        framesCreated: 0,
-        photosFramed: 0,
-      };
+    try {
+      // Check display name availability
+      const isDisplayNameAvailable = await checkDisplayNameAvailability(
+        displayName
+      );
+      if (!isDisplayNameAvailable) {
+        setDisplayNameError("Display name is already taken");
+        setLoading(false);
+        swipeButtonRef.current?.resetToCenter();
+        return;
+      }
+
+      await signUp(email, password, displayName);
 
       // Add a small delay to prevent UI flickering
       setTimeout(() => {
         router.replace("/(tabs)");
       }, 100);
     } catch (error: any) {
-      console.error("Signup error:", error);
-      Alert.alert("Signup Failed", error.message);
       setLoading(false);
-    }
-  };
+      swipeButtonRef.current?.resetToCenter();
 
-  const handleGoToLogin = () => {
+      if (error.code === "auth/email-already-in-use") {
+        setEmailError("Email is already in use");
+      }
+      if (error.code === "auth/invalid-email") {
+        setEmailError("Invalid email address");
+      }
+      if (error.message?.includes("display name")) {
+        setDisplayNameError("Unable to verify display name availability");
+      } else {
+        Alert.alert("Signup Error", "contact administrator");
+      }
+    }
+  }, [email, password, confirmPassword, displayName, signUp]);
+
+  const handleGoToLogin = useCallback(() => {
     router.push("/login");
-  };
+  }, []);
+
+  const handleGoogleSignIn = useCallback(async () => {
+    try {
+      setLoading(true);
+      await signInWithGoogle();
+    } catch (error: any) {
+      setLoading(false);
+      Alert.alert(
+        "Google Sign-In Error",
+        error.message || "Failed to sign in with Google"
+      );
+    }
+  }, [signInWithGoogle]);
 
   return (
     <KeyboardAvoidingView
@@ -256,24 +296,37 @@ export default function Signup() {
             ) : null}
           </View>
 
-          <TouchableOpacity
-            style={[
-              styles.signupButton,
-              loading && styles.signupButtonDisabled,
-            ]}
-            onPress={handleSignup}
+          <SwipeButton
+            ref={swipeButtonRef}
+            leftText="Login"
+            rightText="Sign Up"
+            centerText="Swipe Me"
+            onSwipeLeft={handleGoToLogin}
+            onSwipeRight={handleSignup}
+            loading={loading}
             disabled={loading}
-          >
-            <Text style={styles.signupButtonText}>
-              {loading ? "Creating Account..." : "Create Account"}
-            </Text>
-          </TouchableOpacity>
+            instructionText="Swipe left to Login • Swipe right to Sign Up"
+          />
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>or</Text>
             <View style={styles.dividerLine} />
           </View>
+
+          <TouchableOpacity
+            style={styles.googleButton}
+            onPress={handleGoogleSignIn}
+            disabled={loading}
+          >
+            <Ionicons
+              name="logo-google"
+              size={20}
+              color="#fff"
+              style={styles.googleIcon}
+            />
+            <Text style={styles.googleButtonText}>Continue with Google</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.loginButton}
@@ -398,6 +451,29 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     color: "#666",
     fontSize: 14,
+  },
+  googleButton: {
+    backgroundColor: "#DB4437",
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    marginBottom: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  googleIcon: {
+    marginRight: 12,
+  },
+  googleButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
   loginButton: {
     alignItems: "center",

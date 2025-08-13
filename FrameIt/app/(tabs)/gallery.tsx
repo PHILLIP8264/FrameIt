@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   View,
@@ -6,81 +6,124 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { galleryStyles as styles } from "../../styles";
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
+import { db } from "../../config/firebase";
+import { Submission } from "../../types/database";
+import { useAuth } from "../../contexts/AuthContext";
 
 const { width } = Dimensions.get("window");
 
-interface Discovery {
+interface DiscoveryWithDetails extends Submission {
   id: string;
-  imageUri: string;
   questTitle: string;
   location: string;
-  xpEarned: number;
-  dateDiscovered: Date;
-  category: "urban" | "nature" | "architecture" | "street" | "creative";
+  category: string;
 }
 
 export default function Gallery() {
+  const { user } = useAuth();
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  const [discoveries, setDiscoveries] = useState<DiscoveryWithDetails[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const discoveries: Discovery[] = [
-    {
-      id: "1",
-      imageUri: "https://picsum.photos/400/400?random=1",
-      questTitle: "Urban Explorer",
-      location: "Downtown Arts District",
-      xpEarned: 150,
-      dateDiscovered: new Date(2025, 7, 3),
-      category: "urban",
-    },
-    {
-      id: "2",
-      imageUri: "https://picsum.photos/400/400?random=2",
-      questTitle: "Golden Hour Hunter",
-      location: "Riverside Bridge",
-      xpEarned: 300,
-      dateDiscovered: new Date(2025, 7, 2),
-      category: "architecture",
-    },
-    {
-      id: "3",
-      imageUri: "https://picsum.photos/400/400?random=3",
-      questTitle: "Nature's Geometry",
-      location: "Central Botanical Garden",
-      xpEarned: 350,
-      dateDiscovered: new Date(2025, 7, 1),
-      category: "nature",
-    },
-    {
-      id: "4",
-      imageUri: "https://picsum.photos/400/400?random=4",
-      questTitle: "Market Stories",
-      location: "Saturday Farmer's Market",
-      xpEarned: 200,
-      dateDiscovered: new Date(2025, 6, 30),
-      category: "street",
-    },
-    {
-      id: "5",
-      imageUri: "https://picsum.photos/400/400?random=5",
-      questTitle: "Shadow Master",
-      location: "City Park",
-      xpEarned: 500,
-      dateDiscovered: new Date(2025, 6, 29),
-      category: "creative",
-    },
-    {
-      id: "6",
-      imageUri: "https://picsum.photos/400/400?random=6",
-      questTitle: "Street Reflections",
-      location: "Shopping Mall",
-      xpEarned: 180,
-      dateDiscovered: new Date(2025, 6, 28),
-      category: "urban",
-    },
-  ];
+  // Real-time listener for user's submissions
+  useEffect(() => {
+    if (!user?.uid) {
+      setLoading(false);
+      return;
+    }
+
+    const submissionsQuery = query(
+      collection(db, "submissions"),
+      where("userId", "==", user.uid),
+      orderBy("timestamp", "desc")
+    );
+
+    const unsubscribe = onSnapshot(
+      submissionsQuery,
+      (snapshot) => {
+        const submissionsData = snapshot.docs.map((doc) => {
+          const submission = doc.data() as Submission;
+          return {
+            ...submission,
+            id: doc.id,
+            questTitle: getQuestTitleFromId(submission.questId),
+            location: getLocationFromCategory(submission.questId),
+            category: getCategoryFromQuestId(submission.questId),
+          } as DiscoveryWithDetails;
+        });
+
+        setDiscoveries(submissionsData);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching submissions:", error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user?.uid]);
+
+  // Helper functions to get quest details (you can enhance these to fetch from quests collection)
+  const getQuestTitleFromId = (questId: string) => {
+    const questTitles: { [key: string]: string } = {
+      quest1: "Urban Explorer",
+      quest2: "Street Art Hunter",
+      quest3: "Architecture Seeker",
+      quest4: "Nature's Beauty",
+      quest5: "Golden Hour Magic",
+    };
+    return questTitles[questId] || "Quest Discovery";
+  };
+
+  const getLocationFromCategory = (questId: string) => {
+    const locations: { [key: string]: string } = {
+      quest1: "Downtown",
+      quest2: "Arts District",
+      quest3: "Business District",
+      quest4: "Riverside Park",
+      quest5: "Various Locations",
+    };
+    return locations[questId] || "Unknown Location";
+  };
+
+  const getCategoryFromQuestId = (questId: string) => {
+    const categories: { [key: string]: string } = {
+      quest1: "urban",
+      quest2: "creative",
+      quest3: "architecture",
+      quest4: "nature",
+      quest5: "creative",
+    };
+    return categories[questId] || "urban";
+  };
+
+  if (loading) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={{ marginTop: 10, color: "#666" }}>
+          Loading your discoveries...
+        </Text>
+      </View>
+    );
+  }
 
   const filters = [
     { key: "all", label: "All", icon: "grid-outline" },
@@ -97,17 +140,17 @@ export default function Gallery() {
       : discoveries.filter((d) => d.category === selectedFilter);
 
   const totalXP = discoveries.reduce(
-    (sum, discovery) => sum + discovery.xpEarned,
+    (sum, discovery) => sum + discovery.votes * 10, // Assuming 10 XP per vote as example
     0
   );
 
-  const renderDiscovery = ({ item }: { item: Discovery }) => (
+  const renderDiscovery = ({ item }: { item: DiscoveryWithDetails }) => (
     <TouchableOpacity style={styles.discoveryCard}>
-      <Image source={{ uri: item.imageUri }} style={styles.discoveryImage} />
+      <Image source={{ uri: item.subUrl }} style={styles.discoveryImage} />
       <View style={styles.discoveryOverlay}>
         <View style={styles.xpBadge}>
           <Ionicons name="star" size={12} color="#FFD700" />
-          <Text style={styles.xpText}>{item.xpEarned}</Text>
+          <Text style={styles.xpText}>{item.votes * 10}</Text>
         </View>
       </View>
       <View style={styles.discoveryInfo}>
@@ -117,7 +160,7 @@ export default function Gallery() {
           <Text style={styles.locationText}>{item.location}</Text>
         </View>
         <Text style={styles.dateText}>
-          {item.dateDiscovered.toLocaleDateString()}
+          {new Date(item.timestamp).toLocaleDateString()}
         </Text>
       </View>
     </TouchableOpacity>
