@@ -250,7 +250,7 @@ export default function NotificationsSettings() {
     return () => unsubscribe();
   }, [user?.uid]);
 
-  // Request notification permissions (simplified)
+  // Request notification permissions
   useEffect(() => {
     // For now, just show an alert about notifications
     // TODO use expo-notifications properly configured

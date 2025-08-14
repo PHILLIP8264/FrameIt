@@ -419,7 +419,6 @@ export default function Privacy() {
         {
           text: "Open",
           onPress: () => {
-            // In a real app, you'd open your privacy policy URL
             Linking.openURL("https://your-app.com/privacy").catch(() => {
               Alert.alert("Error", "Could not open privacy policy");
             });

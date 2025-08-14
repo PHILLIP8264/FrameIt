@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   ScrollView,
   Dimensions,
+  ImageBackground,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { leaderboardStyles as styles } from "../../styles";
@@ -266,7 +267,11 @@ export default function Leaderboard() {
   };
 
   return (
-    <View style={[styles.container, { padding: 0 }]}>
+    <ImageBackground
+      source={require("../../assets/images/blank.png")}
+      style={[styles.container, { padding: 0 }]}
+      imageStyle={styles.backgroundImage}
+    >
       {/* Period Selector - Now acts as indicators */}
       <View
         style={[styles.periodSelector, { marginHorizontal: 20, marginTop: 20 }]}
@@ -312,6 +317,6 @@ export default function Leaderboard() {
       >
         {periods.map((period) => renderTabContent(period))}
       </ScrollView>
-    </View>
+    </ImageBackground>
   );
 }

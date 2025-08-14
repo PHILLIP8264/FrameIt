@@ -6,6 +6,8 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
+  ImageBackground,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -186,184 +188,266 @@ export default function Index() {
 
   if (loading) {
     return (
-      <View
+      <ImageBackground
+        source={require("../../assets/images/blank.png")}
         style={[
           styles.container,
           { justifyContent: "center", alignItems: "center" },
         ]}
+        imageStyle={styles.backgroundImage}
       >
         <ActivityIndicator size="large" color="#007AFF" />
         <Text style={{ marginTop: 10, color: "#666" }}>
           Loading your adventure...
         </Text>
-      </View>
+      </ImageBackground>
     );
   }
 
   return (
-    <ScrollView
+    <ImageBackground
+      source={require("../../assets/images/blank.png")}
       style={styles.container}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
+      imageStyle={styles.backgroundImage}
     >
-      {/* Level & XP Progress */}
-      <View style={styles.levelSection}>
-        <View style={styles.levelHeader}>
-          <View style={styles.levelBadge}>
-            <Text style={styles.levelText}>Level {quickStats.level}</Text>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {/* Level & XP Progress */}
+        <View style={styles.levelSection}>
+          <View style={styles.levelHeader}>
+            <View style={styles.levelBadge}>
+              <Text style={styles.levelText}>Level {quickStats.level}</Text>
+            </View>
+            <View style={styles.xpContainer}>
+              <Ionicons name="star" size={16} color="#FFD700" />
+              <Text style={styles.xpText}>
+                {quickStats.totalXP.toLocaleString()} XP
+              </Text>
+            </View>
           </View>
-          <View style={styles.xpContainer}>
-            <Ionicons name="star" size={16} color="#FFD700" />
-            <Text style={styles.xpText}>
-              {quickStats.totalXP.toLocaleString()} XP
-            </Text>
+          <View style={styles.progressBar}>
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${levelProgress.progressPercentage}%` },
+              ]}
+            />
+          </View>
+          <Text style={styles.progressText}>
+            {levelProgress.remainingXP.toLocaleString()} XP to Level{" "}
+            {levelProgress.nextLevel}
+          </Text>
+        </View>
+
+        {/* Quick Stats */}
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
+            <Text style={styles.statNumber}>{quickStats.questsCompleted}</Text>
+            <Text style={styles.statLabel}>Quests Completed</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Ionicons name="play-circle" size={32} color="#2196F3" />
+            <Text style={styles.statNumber}>{quickStats.activeQuests}</Text>
+            <Text style={styles.statLabel}>Active Quests</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Ionicons name="flame" size={32} color="#FF9800" />
+            <Text style={styles.statNumber}>{quickStats.currentStreak}</Text>
+            <Text style={styles.statLabel}>Day Streak</Text>
           </View>
         </View>
-        <View style={styles.progressBar}>
-          <View
-            style={[
-              styles.progressFill,
-              { width: `${levelProgress.progressPercentage}%` },
-            ]}
-          />
-        </View>
-        <Text style={styles.progressText}>
-          {levelProgress.remainingXP.toLocaleString()} XP to Level{" "}
-          {levelProgress.nextLevel}
-        </Text>
-      </View>
 
-      {/* Quick Stats */}
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
-          <Text style={styles.statNumber}>{quickStats.questsCompleted}</Text>
-          <Text style={styles.statLabel}>Quests Completed</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="play-circle" size={32} color="#2196F3" />
-          <Text style={styles.statNumber}>{quickStats.activeQuests}</Text>
-          <Text style={styles.statLabel}>Active Quests</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="flame" size={32} color="#FF9800" />
-          <Text style={styles.statNumber}>{quickStats.currentStreak}</Text>
-          <Text style={styles.statLabel}>Day Streak</Text>
-        </View>
-      </View>
+        {/* Active Quest Progress */}
+        {activeAttempts.length > 0 && (
+          <View style={styles.section}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 15,
+              }}
+            >
+              <Ionicons name="play-circle" size={20} color="#007AFF" />
+              <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+                Active Quests
+              </Text>
+            </View>
+            {activeAttempts.map((attempt) => {
+              const quest = nearbyQuests.find(
+                (q) => q.questId === attempt.questId
+              );
+              if (!quest) return null;
 
-      {/* Active Quest Progress */}
-      {activeAttempts.length > 0 && (
-        <View style={styles.section}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginBottom: 15,
-            }}
-          >
-            <Ionicons name="play-circle" size={20} color="#007AFF" />
-            <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
-              Active Quests
-            </Text>
-          </View>
-          {activeAttempts.map((attempt) => {
-            const quest = nearbyQuests.find(
-              (q) => q.questId === attempt.questId
-            );
-            if (!quest) return null;
-
-            return (
-              <TouchableOpacity
-                key={attempt.attemptId}
-                style={[
-                  styles.questCard,
-                  { borderLeftWidth: 4, borderLeftColor: "#2196F3" },
-                ]}
-                onPress={() => router.push("/(tabs)/challenges")}
-              >
-                <View style={styles.questInfo}>
-                  <Text style={styles.questTitle}>{quest.title}</Text>
-                  <View style={styles.questDetails}>
-                    <Ionicons name="play-circle" size={14} color="#2196F3" />
-                    <Text style={[styles.questLocation, { color: "#2196F3" }]}>
-                      In Progress • Started{" "}
-                      {new Date(attempt.startedAt).toLocaleDateString()}
-                    </Text>
-                  </View>
-                </View>
+              return (
                 <TouchableOpacity
+                  key={attempt.attemptId}
                   style={[
-                    styles.questReward,
-                    {
-                      backgroundColor: "#2196F3",
-                      borderRadius: 15,
-                      paddingHorizontal: 12,
-                      paddingVertical: 6,
-                    },
+                    styles.questCard,
+                    { borderLeftWidth: 4, borderLeftColor: "#2196F3" },
                   ]}
                   onPress={() => router.push("/(tabs)/challenges")}
                 >
-                  <Text
-                    style={{ color: "white", fontSize: 12, fontWeight: "bold" }}
+                  <View style={styles.questInfo}>
+                    <Text style={styles.questTitle}>{quest.title}</Text>
+                    <View style={styles.questDetails}>
+                      <Ionicons name="play-circle" size={14} color="#2196F3" />
+                      <Text
+                        style={[styles.questLocation, { color: "#2196F3" }]}
+                      >
+                        In Progress • Started{" "}
+                        {new Date(attempt.startedAt).toLocaleDateString()}
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={[
+                      styles.questReward,
+                      {
+                        backgroundColor: "#2196F3",
+                        borderRadius: 15,
+                        paddingHorizontal: 12,
+                        paddingVertical: 6,
+                      },
+                    ]}
+                    onPress={() => router.push("/(tabs)/challenges")}
                   >
-                    Continue
-                  </Text>
+                    <Text
+                      style={{
+                        color: "white",
+                        fontSize: 12,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Continue
+                    </Text>
+                  </TouchableOpacity>
                 </TouchableOpacity>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      )}
-
-      {/* Nearby Quests */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Ionicons name="location" size={20} color="#007AFF" />
-            <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
-              Quests Near You
-            </Text>
+              );
+            })}
           </View>
-          <TouchableOpacity onPress={() => router.push("/(tabs)/challenges")}>
-            <Text style={styles.seeAllText}>See All</Text>
-          </TouchableOpacity>
-        </View>
-        {nearbyQuests.slice(0, 3).map((quest) => (
-          <TouchableOpacity key={quest.questId} style={styles.questCard}>
-            <View style={styles.questInfo}>
-              <Text style={styles.questTitle}>{quest.title}</Text>
-              <View style={styles.questDetails}>
-                <Ionicons name="location-outline" size={14} color="#666" />
-                <Text style={styles.questLocation}>
-                  {quest.location} • {quest.difficulty}
+        )}
+
+        {/* Friends Activity */}
+        {userData?.friends && userData.friends.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Ionicons name="people" size={20} color="#007AFF" />
+                <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+                  Friends Activity
                 </Text>
               </View>
-              {/* Photo requirements preview */}
-              <View style={styles.questDetails}>
-                <Ionicons name="camera-outline" size={14} color="#666" />
-                <Text style={[styles.questLocation, { fontStyle: "italic" }]}>
-                  {quest.photoRequirements.subjects.slice(0, 2).join(", ")}
-                  {quest.photoRequirements.subjects.length > 2 && "..."}
-                </Text>
-              </View>
+              <TouchableOpacity onPress={() => router.push("/profile")}>
+                <Text style={styles.seeAllText}>View All</Text>
+              </TouchableOpacity>
             </View>
-            <View style={styles.questReward}>
-              <Ionicons name="star" size={16} color="#FFD700" />
-              <Text style={styles.questXP}>{quest.xpReward} XP</Text>
-              {quest.rewards.bonusXP.firstTime > 0 && (
-                <Text
-                  style={{ fontSize: 10, color: "#FF9500", fontWeight: "bold" }}
+            <View style={styles.friendsActivityContainer}>
+              {userData.friends.slice(0, 4).map((friend) => (
+                <View key={friend.friendId} style={styles.friendActivityCard}>
+                  {friend.profileImageUrl ? (
+                    <Image
+                      source={{ uri: friend.profileImageUrl }}
+                      style={styles.friendActivityAvatar}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.friendActivityAvatar,
+                        styles.friendActivityAvatarPlaceholder,
+                      ]}
+                    >
+                      <Text style={styles.friendActivityAvatarText}>
+                        {friend.displayName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()
+                          .slice(0, 2)}
+                      </Text>
+                    </View>
+                  )}
+                  <Text style={styles.friendActivityName} numberOfLines={1}>
+                    {friend.displayName}
+                  </Text>
+                  <Text style={styles.friendActivityLevel}>
+                    Lv.{friend.level}
+                  </Text>
+                </View>
+              ))}
+              {userData.friends.length > 4 && (
+                <TouchableOpacity
+                  style={styles.moreFriendsActivityCard}
+                  onPress={() => router.push("/profile")}
                 >
-                  +{quest.rewards.bonusXP.firstTime}
-                </Text>
+                  <View style={styles.moreFriendsActivityCircle}>
+                    <Text style={styles.moreFriendsActivityText}>
+                      +{userData.friends.length - 4}
+                    </Text>
+                  </View>
+                  <Text style={styles.moreFriendsActivityLabel}>More</Text>
+                </TouchableOpacity>
               )}
             </View>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </ScrollView>
+          </View>
+        )}
+
+        {/* Nearby Quests */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Ionicons name="location" size={20} color="#007AFF" />
+              <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+                Quests Near You
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => router.push("/(tabs)/challenges")}>
+              <Text style={styles.seeAllText}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          {nearbyQuests.slice(0, 3).map((quest) => (
+            <TouchableOpacity key={quest.questId} style={styles.questCard}>
+              <View style={styles.questInfo}>
+                <Text style={styles.questTitle}>{quest.title}</Text>
+                <View style={styles.questDetails}>
+                  <Ionicons name="location-outline" size={14} color="#666" />
+                  <Text style={styles.questLocation}>
+                    {quest.location} • {quest.difficulty}
+                  </Text>
+                </View>
+                {/* Photo requirements preview */}
+                <View style={styles.questDetails}>
+                  <Ionicons name="camera-outline" size={14} color="#666" />
+                  <Text style={[styles.questLocation, { fontStyle: "italic" }]}>
+                    {quest.photoRequirements.subjects.slice(0, 2).join(", ")}
+                    {quest.photoRequirements.subjects.length > 2 && "..."}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.questReward}>
+                <Ionicons name="star" size={16} color="#FFD700" />
+                <Text style={styles.questXP}>{quest.xpReward} XP</Text>
+                {quest.rewards.bonusXP.firstTime > 0 && (
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color: "#FF9500",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    +{quest.rewards.bonusXP.firstTime}
+                  </Text>
+                )}
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+    </ImageBackground>
   );
 }

@@ -42,32 +42,78 @@ export interface PrivacySettings {
   };
 }
 
+// Friends Collection
+export interface Friend {
+  friendId: string;
+  displayName: string;
+  profileImageUrl?: string;
+  level: number;
+  status: "accepted" | "pending" | "blocked";
+  addedAt: Date;
+}
+
+// Friend Request Interface
+export interface FriendRequest {
+  requestId: string;
+  fromUserId: string;
+  toUserId: string;
+  fromUserName: string;
+  fromUserImage?: string;
+  status: "pending" | "accepted" | "declined";
+  createdAt: Date;
+}
+
 // Users Collection
 export interface User {
   userId: string;
   displayName: string;
   email: string;
   password: string;
-  group: string | null;
-  role: "basic" | "admin" | "management";
+  teams: string[]; // Array of team IDs the user is a member of
+  primaryTeam?: string | null; // Primary team (for display purposes)
+  role: "basic" | "team_leader" | "admin";
   signedUpDate: Date;
   tag: string | null;
   xp: number;
   profileImageUrl: string;
   streakCount: number;
   level: number;
+  friends?: Friend[];
+  friendRequests?: FriendRequest[];
   notificationSettings?: NotificationSettings;
   privacySettings?: PrivacySettings;
 }
 
-// Groups Collection
+// Teams Collection
+export interface Team {
+  teamId: string;
+  name: string;
+  description?: string;
+  createdBy: string; // User ID of the team leader who created the team
+  leaderId: string; // Current team leader (can be different from creator if leadership is transferred)
+  members: string[]; // Array of user IDs in the team
+  createdAt: Date;
+  maxMembers?: number; // Optional limit on team size
+  isActive: boolean; // Whether team is active or disbanded
+  inviteCode?: string; // 6-character invite code for joining
+  codeGeneratedAt?: Date; // When the code was generated
+  codeExpiresAt?: Date; // When the code expires (24 hours from generation)
+}
+
+// Legacy Groups Collection (for backward compatibility)
 export interface Group {
   groupId: string;
   name: string;
   description?: string;
-  createdBy: string;
-  members: string[];
+  createdBy: string; // User ID of the group leader who created the group
+  leaderId: string; // Current group leader (can be different from creator if leadership is transferred)
+  members: string[]; // Array of user IDs in the group
   createdAt: Date;
+  maxMembers?: number; // Optional limit on group size
+  isActive: boolean; // Whether group is active or disbanded
+  inviteCode?: string; // 6-character invite code for joining
+  codeGeneratedAt?: Date; // When the code was generated
+  codeExpiresAt?: Date; // When the code expires (24 hours from generation)
 }
 
 // CompletedQuests Subcollection
@@ -118,6 +164,13 @@ export interface Quest {
   difficulty: "beginner" | "intermediate" | "advanced" | "expert";
   minLevel: number;
   estimatedDuration: number; // minutes
+
+  // Quest Type and Access Control
+  questType: "global" | "team";
+  visibility: "public" | "team";
+  targetTeams?: string[]; // Team IDs that can access this quest (for team quests)
+  creatorRole: "admin" | "team_leader";
+
   photoRequirements: {
     subjects: string[]; // ["street art", "people", "architecture"]
     style?: string; // "portrait", "landscape", "close-up"

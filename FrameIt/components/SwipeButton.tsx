@@ -58,7 +58,7 @@ const SwipeButton = forwardRef<SwipeButtonRef, SwipeButtonProps>(
         {
           useNativeDriver: true,
           listener: (event: any) => {
-            // Only update blob position if we're actively dragging
+            // Only update blob position if it is actively dragging
             if (isDragging && !disabled) {
               const maxTranslation = 100; // reduced to prevent clipping outside track
               const clampedTranslation = Math.max(

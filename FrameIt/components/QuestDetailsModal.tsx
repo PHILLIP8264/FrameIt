@@ -99,7 +99,7 @@ export default function QuestDetailsModal({
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
+      <ScrollView style={{ flex: 1, backgroundColor: "transparent" }}>
         <View style={{ padding: 20 }}>
           {/* Header */}
           <View
@@ -547,7 +547,7 @@ export default function QuestDetailsModal({
           {/* Action Button */}
           <TouchableOpacity
             style={{
-              backgroundColor: !canAttempt.canAttempt ? "#999" : "#007AFF",
+              backgroundColor: !canAttempt.canAttempt ? "#9CA3AF" : "#4F46E5",
               borderRadius: 15,
               padding: 20,
               alignItems: "center",

@@ -7,6 +7,7 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  ImageBackground,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { galleryStyles as styles } from "../../styles";
@@ -75,7 +76,7 @@ export default function Gallery() {
     return () => unsubscribe();
   }, [user?.uid]);
 
-  // Helper functions to get quest details (you can enhance these to fetch from quests collection)
+  // Helper functions to get quest details
   const getQuestTitleFromId = (questId: string) => {
     const questTitles: { [key: string]: string } = {
       quest1: "Urban Explorer",
@@ -140,7 +141,7 @@ export default function Gallery() {
       : discoveries.filter((d) => d.category === selectedFilter);
 
   const totalXP = discoveries.reduce(
-    (sum, discovery) => sum + discovery.votes * 10, // Assuming 10 XP per vote as example
+    (sum, discovery) => sum + discovery.votes * 10, // xp given by a vote
     0
   );
 
@@ -191,7 +192,11 @@ export default function Gallery() {
   );
 
   return (
-    <View style={styles.container}>
+    <ImageBackground
+      source={require("../../assets/images/blank.png")}
+      style={styles.container}
+      imageStyle={styles.backgroundImage}
+    >
       {/* Stats Header */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
@@ -242,6 +247,6 @@ export default function Gallery() {
           </Text>
         </View>
       )}
-    </View>
+    </ImageBackground>
   );
 }

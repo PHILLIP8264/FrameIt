@@ -9,6 +9,7 @@ import {
   ScrollView,
   Animated,
   Image,
+  ImageBackground,
 } from "react-native";
 import {
   PanGestureHandler,
@@ -172,7 +173,7 @@ const SettingSlider: React.FC<SettingSliderProps> = ({
       >
         <View style={styles.settingSliderContent}>
           <View style={styles.settingLeft}>
-            <Ionicons name={icon as any} size={20} color="#007AFF" />
+            <Ionicons name={icon as any} size={22} color="#4F46E5" />
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>{label}</Text>
               <Text style={styles.settingValue}>{value}</Text>
@@ -180,7 +181,7 @@ const SettingSlider: React.FC<SettingSliderProps> = ({
           </View>
           <View style={styles.slideHint}>
             <Text style={styles.slideHintText}>Slide to edit</Text>
-            <Ionicons name="chevron-forward" size={16} color="#999" />
+            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
           </View>
         </View>
 
@@ -295,210 +296,220 @@ export default function Settings() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#007AFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Settings</Text>
-          <View style={styles.placeholder} />
-        </View>
+      <ImageBackground
+        source={require("../assets/images/blank.png")}
+        style={styles.container}
+        imageStyle={styles.backgroundImage}
+      >
+        <SafeAreaView style={styles.container}>
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="arrow-back" size={24} color="#4F46E5" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Settings</Text>
+            <View style={styles.placeholder} />
+          </View>
 
-        <ScrollView
-          style={styles.scrollContainer}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.content}>
-            {/* Profile Image Section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Profile Picture</Text>
-              <View style={styles.profileImageContainer}>
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.content}>
+              {/* Profile Image Section */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Profile Picture</Text>
+                <View style={styles.profileImageContainer}>
+                  <TouchableOpacity
+                    style={styles.avatarContainer}
+                    onPress={handleProfileImageChange}
+                  >
+                    {userData?.profileImageUrl ? (
+                      <Image
+                        source={{ uri: userData.profileImageUrl }}
+                        style={styles.avatarImage}
+                      />
+                    ) : (
+                      <View style={styles.avatar}>
+                        <Text style={styles.avatarText}>
+                          {getInitials(
+                            userData?.displayName || user?.displayName || "User"
+                          )}
+                        </Text>
+                      </View>
+                    )}
+                    <View style={styles.cameraIconOverlay}>
+                      <Ionicons name="camera" size={16} color="#fff" />
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.changeImageButton}
+                    onPress={handleProfileImageChange}
+                  >
+                    <Ionicons name="camera" size={22} color="#FFFFFF" />
+                    <Text style={styles.changeImageText}>Change Photo</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Account Information */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Account Information</Text>
+
+                <SettingSlider
+                  icon="person-outline"
+                  label="Display Name"
+                  value={
+                    userData?.displayName || user?.displayName || "Not set"
+                  }
+                  onPress={() => setDisplayNameModalVisible(true)}
+                />
+
+                <SettingSlider
+                  icon="mail-outline"
+                  label="Email Address"
+                  value={userData?.email || user?.email || "Not set"}
+                  onPress={() => setEmailModalVisible(true)}
+                />
+
+                <SettingSlider
+                  icon="lock-closed-outline"
+                  label="Password"
+                  value="••••••••"
+                  onPress={() => setPasswordModalVisible(true)}
+                />
+              </View>
+
+              {/* App Preferences */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Preferences</Text>
+
                 <TouchableOpacity
-                  style={styles.avatarContainer}
-                  onPress={handleProfileImageChange}
+                  style={styles.settingItem}
+                  onPress={() => router.push("/notifications")}
                 >
-                  {userData?.profileImageUrl ? (
-                    <Image
-                      source={{ uri: userData.profileImageUrl }}
-                      style={styles.avatarImage}
+                  <View style={styles.settingLeft}>
+                    <Ionicons
+                      name="notifications-outline"
+                      size={22}
+                      color="#4F46E5"
                     />
-                  ) : (
-                    <View style={styles.avatar}>
-                      <Text style={styles.avatarText}>
-                        {getInitials(
-                          userData?.displayName || user?.displayName || "User"
-                        )}
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>Notifications</Text>
+                      <Text style={styles.settingValue}>
+                        Manage notification settings
                       </Text>
                     </View>
-                  )}
-                  <View style={styles.cameraIconOverlay}>
-                    <Ionicons name="camera" size={16} color="#fff" />
                   </View>
+                  <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
                 </TouchableOpacity>
+
                 <TouchableOpacity
-                  style={styles.changeImageButton}
-                  onPress={handleProfileImageChange}
+                  style={styles.settingItem}
+                  onPress={() => router.push("/privacy")}
                 >
-                  <Ionicons name="camera" size={20} color="#007AFF" />
-                  <Text style={styles.changeImageText}>Change Photo</Text>
+                  <View style={styles.settingLeft}>
+                    <Ionicons name="shield-outline" size={22} color="#4F46E5" />
+                    <View style={styles.settingInfo}>
+                      <Text style={styles.settingLabel}>Privacy</Text>
+                      <Text style={styles.settingValue}>
+                        Privacy and security settings
+                      </Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
                 </TouchableOpacity>
               </View>
-            </View>
 
-            {/* Account Information */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Account Information</Text>
+              {/* Support */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Support</Text>
 
-              <SettingSlider
-                icon="person-outline"
-                label="Display Name"
-                value={userData?.displayName || user?.displayName || "Not set"}
-                onPress={() => setDisplayNameModalVisible(true)}
-              />
-
-              <SettingSlider
-                icon="mail-outline"
-                label="Email Address"
-                value={userData?.email || user?.email || "Not set"}
-                onPress={() => setEmailModalVisible(true)}
-              />
-
-              <SettingSlider
-                icon="lock-closed-outline"
-                label="Password"
-                value="••••••••"
-                onPress={() => setPasswordModalVisible(true)}
-              />
-            </View>
-
-            {/* App Preferences */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Preferences</Text>
-
-              <TouchableOpacity
-                style={styles.settingItem}
-                onPress={() => router.push("/notifications")}
-              >
-                <View style={styles.settingLeft}>
-                  <Ionicons
-                    name="notifications-outline"
-                    size={20}
-                    color="#007AFF"
-                  />
-                  <View style={styles.settingInfo}>
-                    <Text style={styles.settingLabel}>Notifications</Text>
-                    <Text style={styles.settingValue}>
-                      Manage notification settings
-                    </Text>
+                <TouchableOpacity
+                  style={styles.settingItem}
+                  onPress={() => router.push("/help")}
+                >
+                  <View style={styles.settingLeft}>
+                    <Ionicons
+                      name="help-circle-outline"
+                      size={22}
+                      color="#4F46E5"
+                    />
+                    <Text style={styles.settingLabel}>Help & Support</Text>
                   </View>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#CCC" />
-              </TouchableOpacity>
+                  <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.settingItem}
-                onPress={() => router.push("/privacy")}
-              >
-                <View style={styles.settingLeft}>
-                  <Ionicons name="shield-outline" size={20} color="#007AFF" />
-                  <View style={styles.settingInfo}>
-                    <Text style={styles.settingLabel}>Privacy</Text>
-                    <Text style={styles.settingValue}>
-                      Privacy and security settings
-                    </Text>
+                <TouchableOpacity
+                  style={styles.settingItem}
+                  onPress={() => router.push("/about")}
+                >
+                  <View style={styles.settingLeft}>
+                    <Ionicons
+                      name="information-circle-outline"
+                      size={22}
+                      color="#4F46E5"
+                    />
+                    <Text style={styles.settingLabel}>About</Text>
                   </View>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#CCC" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Support */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Support</Text>
-
-              <TouchableOpacity
-                style={styles.settingItem}
-                onPress={() => router.push("/help")}
-              >
-                <View style={styles.settingLeft}>
-                  <Ionicons
-                    name="help-circle-outline"
-                    size={20}
-                    color="#007AFF"
-                  />
-                  <Text style={styles.settingLabel}>Help & Support</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#CCC" />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.settingItem}
-                onPress={() => router.push("/about")}
-              >
-                <View style={styles.settingLeft}>
-                  <Ionicons
-                    name="information-circle-outline"
-                    size={20}
-                    color="#007AFF"
-                  />
-                  <Text style={styles.settingLabel}>About</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#CCC" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Sign Out */}
-            <TouchableOpacity
-              style={[styles.settingItem, styles.signOutButton]}
-              onPress={async () => {
-                try {
-                  await logout();
-                  router.replace("/login");
-                } catch (error) {
-                  console.error("Error signing out:", error);
-                }
-              }}
-            >
-              <View style={styles.settingLeft}>
-                <Ionicons name="log-out-outline" size={20} color="#FF3B30" />
-                <Text style={[styles.settingLabel, styles.signOutText]}>
-                  Sign Out
-                </Text>
+                  <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
 
-        {/* Individual Modals */}
-        <DisplayNameModal
-          visible={displayNameModalVisible}
-          onClose={() => setDisplayNameModalVisible(false)}
-          currentDisplayName={userData?.displayName || user?.displayName || ""}
-        />
+              {/* Sign Out */}
+              <TouchableOpacity
+                style={[styles.settingItem, styles.signOutButton]}
+                onPress={async () => {
+                  try {
+                    await logout();
+                    router.replace("/login");
+                  } catch (error) {
+                    console.error("Error signing out:", error);
+                  }
+                }}
+              >
+                <View style={styles.settingLeft}>
+                  <Ionicons name="log-out-outline" size={20} color="#FF3B30" />
+                  <Text style={[styles.settingLabel, styles.signOutText]}>
+                    Sign Out
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
 
-        <EmailModal
-          visible={emailModalVisible}
-          onClose={() => setEmailModalVisible(false)}
-          currentEmail={userData?.email || user?.email || ""}
-        />
+          {/* Individual Modals */}
+          <DisplayNameModal
+            visible={displayNameModalVisible}
+            onClose={() => setDisplayNameModalVisible(false)}
+            currentDisplayName={
+              userData?.displayName || user?.displayName || ""
+            }
+          />
 
-        <PasswordModal
-          visible={passwordModalVisible}
-          onClose={() => setPasswordModalVisible(false)}
-        />
+          <EmailModal
+            visible={emailModalVisible}
+            onClose={() => setEmailModalVisible(false)}
+            currentEmail={userData?.email || user?.email || ""}
+          />
 
-        <ProfilePhotoModal
-          ref={profilePhotoModalRef}
-          visible={profilePhotoModalVisible}
-          onClose={() => setProfilePhotoModalVisible(false)}
-          onPhotoUpdated={handlePhotoUpdated}
-        />
-      </SafeAreaView>
+          <PasswordModal
+            visible={passwordModalVisible}
+            onClose={() => setPasswordModalVisible(false)}
+          />
+
+          <ProfilePhotoModal
+            ref={profilePhotoModalRef}
+            visible={profilePhotoModalVisible}
+            onClose={() => setProfilePhotoModalVisible(false)}
+            onPhotoUpdated={handlePhotoUpdated}
+          />
+        </SafeAreaView>
+      </ImageBackground>
     </GestureHandlerRootView>
   );
 }
@@ -508,137 +519,175 @@ const styles = {
     flex: 1,
     backgroundColor: "transparent",
   },
+  backgroundImage: {
+    opacity: 1,
+    resizeMode: "cover" as const,
+  },
   scrollContainer: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 20,
+    paddingBottom: 30,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center" as const,
     alignItems: "center" as const,
+    backgroundColor: "transparent",
   },
   loadingText: {
-    marginTop: 10,
-    color: "#666",
+    marginTop: 16,
+    color: "#6B7280",
     fontSize: 16,
+    fontWeight: "500" as const,
   },
   header: {
     flexDirection: "row" as const,
     alignItems: "center" as const,
     justifyContent: "space-between" as const,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 0, 0, 0.1)",
+    borderBottomColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   backButton: {
-    padding: 8,
+    padding: 10,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold" as const,
-    color: "#007AFF",
+    fontSize: 22,
+    fontWeight: "700" as const,
+    color: "#1F2937",
+    letterSpacing: 0.3,
   },
   placeholder: {
-    width: 40,
+    width: 44,
   },
   content: {
     flex: 1,
+    paddingTop: 8,
   },
   section: {
-    marginTop: 20,
-    paddingHorizontal: 20,
+    marginTop: 32,
+    paddingHorizontal: 24,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold" as const,
-    color: "#333",
-    marginBottom: 15,
+    fontSize: 20,
+    fontWeight: "700" as const,
+    color: "#1F2937",
+    marginBottom: 20,
+    letterSpacing: 0.2,
   },
   profileImageContainer: {
     alignItems: "center" as const,
-    paddingVertical: 20,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#007AFF",
-    alignItems: "center" as const,
-    justifyContent: "center" as const,
-    marginBottom: 15,
+    paddingVertical: 32,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    marginHorizontal: 0,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#4F46E5",
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    marginBottom: 20,
+    shadowColor: "#4F46E5",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 12,
+    borderWidth: 4,
+    borderColor: "#FFFFFF",
   },
   avatarText: {
-    fontSize: 32,
-    fontWeight: "bold" as const,
-    color: "#fff",
+    fontSize: 36,
+    fontWeight: "700" as const,
+    color: "#FFFFFF",
+    letterSpacing: 1,
   },
   changeImageButton: {
     flexDirection: "row" as const,
     alignItems: "center" as const,
-    backgroundColor: "rgba(0, 122, 255, 0.1)",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  changeImageText: {
-    color: "#007AFF",
-    fontWeight: "600" as const,
-    marginLeft: 8,
-  },
-  avatarContainer: {
-    position: "relative" as const,
-    marginBottom: 15,
-  },
-  avatarImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    shadowColor: "#000",
+    backgroundColor: "#4F46E5",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 24,
+    shadowColor: "#4F46E5",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 4,
+  },
+  changeImageText: {
+    color: "#FFFFFF",
+    fontWeight: "600" as const,
+    marginLeft: 8,
+    fontSize: 16,
+  },
+  avatarContainer: {
+    position: "relative" as const,
+    marginBottom: 20,
+  },
+  avatarImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 12,
+    borderWidth: 4,
+    borderColor: "#FFFFFF",
   },
   cameraIconOverlay: {
     position: "absolute" as const,
-    bottom: 0,
-    right: 0,
-    backgroundColor: "#007AFF",
-    borderRadius: 14,
-    width: 28,
-    height: 28,
+    bottom: 8,
+    right: 8,
+    backgroundColor: "#4F46E5",
+    borderRadius: 18,
+    width: 36,
+    height: 36,
     justifyContent: "center" as const,
     alignItems: "center" as const,
     borderWidth: 3,
-    borderColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    borderColor: "#FFFFFF",
+    shadowColor: "#4F46E5",
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 6,
+    shadowRadius: 8,
+    elevation: 8,
   },
   settingItem: {
     flexDirection: "row" as const,
     alignItems: "center" as const,
     justifyContent: "space-between" as const,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 10,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: "#F3F4F6",
   },
   settingLeft: {
     flexDirection: "row" as const,
@@ -646,76 +695,82 @@ const styles = {
     flex: 1,
   },
   settingInfo: {
-    marginLeft: 15,
+    marginLeft: 16,
     flex: 1,
   },
   settingLabel: {
-    fontSize: 16,
-    fontWeight: "500" as const,
-    color: "#333",
+    fontSize: 17,
+    fontWeight: "600" as const,
+    color: "#1F2937",
+    letterSpacing: 0.1,
   },
   settingValue: {
     fontSize: 14,
-    color: "#666",
-    marginTop: 2,
+    color: "#6B7280",
+    marginTop: 4,
+    lineHeight: 18,
   },
   signOutButton: {
-    backgroundColor: "rgba(255, 59, 48, 0.1)",
-    marginTop: 20,
-    marginBottom: 40,
+    backgroundColor: "#FEF2F2",
+    marginTop: 24,
+    marginBottom: 48,
+    borderColor: "#FECACA",
   },
   signOutText: {
-    color: "#FF3B30",
+    color: "#DC2626",
+    fontWeight: "600" as const,
   },
   // Setting Slider Styles
   settingSlider: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    marginBottom: 12,
+    borderRadius: 20,
+    marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
     elevation: 8,
     overflow: "hidden" as const,
     position: "relative" as const,
     borderWidth: 1,
-    borderColor: "rgba(0, 122, 255, 0.1)",
+    borderColor: "#F3F4F6",
   },
   settingSliderContent: {
     flexDirection: "row" as const,
     alignItems: "center" as const,
     justifyContent: "space-between" as const,
-    padding: 20,
-    paddingLeft: 70, // Make room for the slide blob
+    padding: 24,
+    paddingLeft: 80, // Make room for the slide blob
     zIndex: 2,
+    minHeight: 72,
   },
   slideHint: {
     alignItems: "flex-end" as const,
-    opacity: 0.7,
+    opacity: 0.8,
   },
   slideHintText: {
-    fontSize: 11,
-    color: "#007AFF",
-    fontWeight: "500" as const,
+    fontSize: 12,
+    color: "#4F46E5",
+    fontWeight: "600" as const,
     marginBottom: 2,
-    letterSpacing: 0.3,
+    letterSpacing: 0.5,
+    textTransform: "uppercase" as const,
   },
   slideBlob: {
     position: "absolute" as const,
-    left: 6,
-    top: 6,
-    bottom: 6,
-    width: 56,
-    backgroundColor: "#007AFF",
-    borderRadius: 12,
+    left: 8,
+    top: 8,
+    bottom: 8,
+    width: 64,
+    backgroundColor: "#4F46E5",
+    borderRadius: 16,
     alignItems: "center" as const,
     justifyContent: "center" as const,
     zIndex: 1,
-    shadowColor: "#007AFF",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowColor: "#4F46E5",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 8,
   },
 };

@@ -9,24 +9,32 @@ import {
   Modal,
   ActivityIndicator,
   Image,
+  ImageBackground,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
 import { profileStyles as styles } from "../styles";
 import FirestoreService from "../services/FirestoreService";
-import { User, CompletedQuest, Achievement } from "../types/database";
+import { User, CompletedQuest, Achievement, Team } from "../types/database";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
 import ProfilePhotoModal, {
   ProfilePhotoModalRef,
 } from "../components/modals/ProfilePhotoModal";
+import FriendsModal from "../components/FriendsModal";
+import { TeamManagementModal } from "../components/TeamManagementModal";
+import { JoinTeamModal } from "../components/JoinTeamModal";
 
 export default function Profile() {
   const { user, logout } = useAuth();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [profilePhotoModalVisible, setProfilePhotoModalVisible] =
     useState(false);
+  const [friendsModalVisible, setFriendsModalVisible] = useState(false);
+  const [teamManagementModalVisible, setTeamManagementModalVisible] =
+    useState(false);
+  const [joinTeamModalVisible, setJoinTeamModalVisible] = useState(false);
   const [editType, setEditType] = useState<"username" | "email" | "password">(
     "username"
   );
@@ -34,6 +42,9 @@ export default function Profile() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [userData, setUserData] = useState<User | null>(null);
+  const [userTeams, setUserTeams] = useState<Team[]>([]);
+  const [primaryTeam, setPrimaryTeam] = useState<Team | null>(null);
+  const [teamMembers, setTeamMembers] = useState<User[]>([]);
   const [completedQuests, setCompletedQuests] = useState<CompletedQuest[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,6 +90,83 @@ export default function Profile() {
 
     loadUserData();
   }, [user?.uid]);
+
+  // Load team data when userData changes
+  useEffect(() => {
+    const loadTeamData = async () => {
+      if (!userData?.teams || userData.teams.length === 0) {
+        setUserTeams([]);
+        setPrimaryTeam(null);
+        setTeamMembers([]);
+        return;
+      }
+
+      try {
+        // Load all user teams
+        const teams = await FirestoreService.getUserTeams(userData.userId);
+        setUserTeams(teams);
+
+        // Load primary team details and members
+        if (userData.primaryTeam) {
+          const [primaryTeamData, membersData] = await Promise.all([
+            FirestoreService.getTeam(userData.primaryTeam),
+            FirestoreService.getTeamMembers(userData.primaryTeam),
+          ]);
+          setPrimaryTeam(primaryTeamData);
+          setTeamMembers(membersData);
+        } else if (teams.length > 0) {
+          // Use first team as primary if no primary team set
+          const [membersData] = await Promise.all([
+            FirestoreService.getTeamMembers(teams[0].teamId),
+          ]);
+          setPrimaryTeam(teams[0]);
+          setTeamMembers(membersData);
+        }
+      } catch (error) {
+        console.error("Error loading team data:", error);
+        setUserTeams([]);
+        setPrimaryTeam(null);
+        setTeamMembers([]);
+      }
+    };
+
+    loadTeamData();
+  }, [userData?.teams, userData?.primaryTeam]);
+
+  // Function to refresh team data (called by child components)
+  const refreshTeamData = async () => {
+    if (!userData?.teams || userData.teams.length === 0) return;
+
+    try {
+      const teams = await FirestoreService.getUserTeams(userData.userId);
+      setUserTeams(teams);
+
+      if (userData.primaryTeam) {
+        const [primaryTeamData, membersData] = await Promise.all([
+          FirestoreService.getTeam(userData.primaryTeam),
+          FirestoreService.getTeamMembers(userData.primaryTeam),
+        ]);
+        setPrimaryTeam(primaryTeamData);
+        setTeamMembers(membersData);
+      }
+    } catch (error) {
+      console.error("Error refreshing team data:", error);
+    }
+  };
+
+  // Function to refresh user data (for when user joins a group)
+  const refreshUserData = async () => {
+    if (!user?.uid) return;
+
+    try {
+      const freshUserData = await FirestoreService.getUser(user.uid);
+      if (freshUserData) {
+        setUserData(freshUserData);
+      }
+    } catch (error) {
+      console.error("Error refreshing user data:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -274,371 +362,546 @@ export default function Profile() {
     }
   };
 
-  const isAdmin = userData?.role === "admin" || userData?.role === "management";
+  const isAdmin = userData?.role === "admin";
+  const isTeamLeader = userData?.role === "team_leader";
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Explorer Profile</Text>
-        <TouchableOpacity
-          style={styles.settingsButton}
-          onPress={() => router.push("/settings")}
-        >
-          <Ionicons name="settings-outline" size={24} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
+    <ImageBackground
+      source={require("../assets/images/blank.png")}
+      style={styles.container}
+      imageStyle={styles.backgroundImage}
+    >
+      <ScrollView style={styles.scrollContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#007AFF" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Explorer Profile</Text>
+          <TouchableOpacity
+            style={styles.settingsButton}
+            onPress={() => router.push("/settings")}
+          >
+            <Ionicons name="settings-outline" size={24} color="#007AFF" />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.profileSection}>
-        <TouchableOpacity
-          style={styles.avatarContainer}
-          onPress={() => setProfilePhotoModalVisible(true)}
-        >
-          {userData?.profileImageUrl ? (
-            <Image
-              source={{ uri: userData.profileImageUrl }}
-              style={styles.avatarImage}
-            />
-          ) : (
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{getInitials(stats.name)}</Text>
+        <View style={styles.profileSection}>
+          <TouchableOpacity
+            style={styles.avatarContainer}
+            onPress={() => setProfilePhotoModalVisible(true)}
+          >
+            {userData?.profileImageUrl ? (
+              <Image
+                source={{ uri: userData.profileImageUrl }}
+                style={styles.avatarImage}
+              />
+            ) : (
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{getInitials(stats.name)}</Text>
+              </View>
+            )}
+            <View style={styles.levelBadge}>
+              <Text style={styles.levelBadgeText}>Lv.{stats.level}</Text>
             </View>
-          )}
-          <View style={styles.levelBadge}>
-            <Text style={styles.levelBadgeText}>Lv.{stats.level}</Text>
-          </View>
-          <View style={styles.cameraIcon}>
-            <Ionicons name="camera" size={16} color="#fff" />
-          </View>
-        </TouchableOpacity>
+            <View style={styles.cameraIcon}>
+              <Ionicons name="camera" size={16} color="#fff" />
+            </View>
+          </TouchableOpacity>
 
-        <Text style={styles.userName}>{stats.name}</Text>
-        <Text style={styles.userTitle}>{stats.currentTitle}</Text>
-        <Text style={styles.userEmail}>{stats.email}</Text>
-        <Text style={styles.joinDate}>Explorer since {stats.joinDate}</Text>
+          <Text style={styles.userName}>{stats.name}</Text>
+          <Text style={styles.userTitle}>{stats.currentTitle}</Text>
+          <Text style={styles.userEmail}>{stats.email}</Text>
+          <Text style={styles.joinDate}>Explorer since {stats.joinDate}</Text>
 
-        {/* XP Progress */}
-        <View style={styles.xpSection}>
-          <View style={styles.xpHeader}>
-            <Ionicons name="star" size={20} color="#FFD700" />
-            <Text style={styles.xpText}>
-              {stats.totalXP.toLocaleString()} XP
-            </Text>
-          </View>
-          <View style={styles.progressBar}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${levelProgress.progressPercentage}%` },
-              ]}
-            />
-          </View>
-          <Text style={styles.progressText}>
-            {levelProgress.remainingXP.toLocaleString()} XP to Level{" "}
-            {levelProgress.nextLevel}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.statsSection}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 15,
-          }}
-        >
-          <Ionicons name="analytics" size={20} color="#007AFF" />
-          <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
-            Adventure Stats
-          </Text>
-        </View>
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Ionicons name="star" size={32} color="#FFD700" />
-            <Text style={styles.statNumber}>
-              {stats.totalXP.toLocaleString()}
-            </Text>
-            <Text style={styles.statLabel}>Total XP</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
-            <Text style={styles.statNumber}>{stats.questsCompleted}</Text>
-            <Text style={styles.statLabel}>Quests Completed</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Ionicons name="flame" size={32} color="#FF5722" />
-            <Text style={styles.statNumber}>{stats.currentStreak}</Text>
-            <Text style={styles.statLabel}>Current Streak</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Ionicons name="trophy" size={32} color="#2196F3" />
-            <Text style={styles.statNumber}>
-              {achievementsUI.filter((a) => a.unlocked).length}
-            </Text>
-            <Text style={styles.statLabel}>Achievements</Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.achievementsSection}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 15,
-          }}
-        >
-          <Ionicons name="trophy" size={20} color="#FFD700" />
-          <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
-            Achievements
-          </Text>
-        </View>
-        <View style={styles.achievementsGrid}>
-          {achievementsUI.map((achievement) => (
-            <View
-              key={achievement.id}
-              style={[
-                styles.achievementCard,
-                !achievement.unlocked && styles.lockedAchievement,
-              ]}
-            >
+          {/* XP Progress */}
+          <View style={styles.xpSection}>
+            <View style={styles.xpHeader}>
+              <Ionicons name="star" size={20} color="#FFD700" />
+              <Text style={styles.xpText}>
+                {stats.totalXP.toLocaleString()} XP
+              </Text>
+            </View>
+            <View style={styles.progressBar}>
               <View
                 style={[
-                  styles.achievementIcon,
-                  !achievement.unlocked && styles.lockedIcon,
+                  styles.progressFill,
+                  { width: `${levelProgress.progressPercentage}%` },
                 ]}
-              >
-                <Ionicons
-                  name={
-                    achievement.unlocked
-                      ? (achievement.icon as any)
-                      : "lock-closed"
-                  }
-                  size={24}
-                  color={achievement.unlocked ? "#007AFF" : "#999"}
-                />
-              </View>
-              <Text
-                style={[
-                  styles.achievementTitle,
-                  !achievement.unlocked && styles.lockedText,
-                ]}
-              >
-                {achievement.title}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {/* Recent Discoveries */}
-      <View style={styles.recentSection}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 15,
-          }}
-        >
-          <Ionicons name="camera" size={20} color="#007AFF" />
-          <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
-            Recent Discoveries
-          </Text>
-        </View>
-        {recentDiscoveries.map((discovery) => (
-          <View key={discovery.id} style={styles.discoveryItem}>
-            <Ionicons name="location-outline" size={20} color="#007AFF" />
-            <View style={styles.discoveryInfo}>
-              <Text style={styles.discoveryTitle}>{discovery.title}</Text>
-              <Text style={styles.discoveryLocation}>{discovery.location}</Text>
-            </View>
-            <Text style={styles.discoveryDate}>{discovery.date}</Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.actionsSection}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 15,
-          }}
-        >
-          <Ionicons name="settings" size={20} color="#007AFF" />
-          <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
-            Account Settings
-          </Text>
-        </View>
-
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => handleEditProfile("username")}
-        >
-          <Ionicons name="person-outline" size={20} color="#007AFF" />
-          <View style={styles.actionContent}>
-            <Text style={styles.actionText}>Change Username</Text>
-            <Text style={styles.actionSubtext}>{stats.name}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#CCC" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => handleEditProfile("email")}
-        >
-          <Ionicons name="mail-outline" size={20} color="#007AFF" />
-          <View style={styles.actionContent}>
-            <Text style={styles.actionText}>Change Email</Text>
-            <Text style={styles.actionSubtext}>{stats.email}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#CCC" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => handleEditProfile("password")}
-        >
-          <Ionicons name="lock-closed-outline" size={20} color="#007AFF" />
-          <View style={styles.actionContent}>
-            <Text style={styles.actionText}>Change Password</Text>
-            <Text style={styles.actionSubtext}>••••••••</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#CCC" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="share-outline" size={20} color="#007AFF" />
-          <Text style={styles.actionText}>Share Profile</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="help-circle-outline" size={20} color="#007AFF" />
-          <Text style={styles.actionText}>Help & Support</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionButton, styles.logoutButton]}
-          onPress={handleSignOut}
-        >
-          <Ionicons name="log-out-outline" size={20} color="#FF3B30" />
-          <Text style={[styles.actionText, styles.logoutText]}>Sign Out</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Admin Panel Button - Visible only to admins */}
-      {isAdmin && (
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#FF6B35",
-            margin: 20,
-            padding: 15,
-            borderRadius: 8,
-            alignItems: "center",
-          }}
-          onPress={() => router.push("/admin")}
-        >
-          <Text
-            style={{
-              color: "#fff",
-              fontSize: 16,
-              fontWeight: "600",
-            }}
-          >
-            Admin Panel
-          </Text>
-        </TouchableOpacity>
-      )}
-
-      {/* Edit Profile Modal */}
-      <Modal
-        visible={editModalVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setEditModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setEditModalVisible(false)}>
-              <Text style={styles.modalCancel}>Cancel</Text>
-            </TouchableOpacity>
-            <Text style={styles.modalTitle}>
-              Change{" "}
-              {editType === "username"
-                ? "Username"
-                : editType === "email"
-                ? "Email"
-                : "Password"}
-            </Text>
-            <TouchableOpacity onPress={handleSaveChanges}>
-              <Text style={styles.modalSave}>Save</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.modalContent}>
-            {editType === "password" && (
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Current Password</Text>
-                <TextInput
-                  style={styles.input}
-                  secureTextEntry
-                  value={currentPassword}
-                  onChangeText={setCurrentPassword}
-                  placeholder="Enter current password"
-                />
-              </View>
-            )}
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>
-                {editType === "username"
-                  ? "New Username"
-                  : editType === "email"
-                  ? "New Email"
-                  : "New Password"}
-              </Text>
-              <TextInput
-                style={styles.input}
-                secureTextEntry={editType === "password"}
-                value={editValue}
-                onChangeText={setEditValue}
-                placeholder={`Enter new ${editType}`}
-                keyboardType={
-                  editType === "email" ? "email-address" : "default"
-                }
               />
             </View>
-
-            {editType === "password" && (
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Confirm New Password</Text>
-                <TextInput
-                  style={styles.input}
-                  secureTextEntry
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  placeholder="Confirm new password"
-                />
-              </View>
-            )}
+            <Text style={styles.progressText}>
+              {levelProgress.remainingXP.toLocaleString()} XP to Level{" "}
+              {levelProgress.nextLevel}
+            </Text>
           </View>
         </View>
-      </Modal>
 
-      {/* Profile Photo Modal */}
-      <ProfilePhotoModal
-        ref={profilePhotoModalRef}
-        visible={profilePhotoModalVisible}
-        onClose={() => setProfilePhotoModalVisible(false)}
-        currentPhotoURL={userData?.profileImageUrl}
-        onPhotoUpdated={handlePhotoUpdated}
+        <View style={styles.statsSection}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginBottom: 15,
+            }}
+          >
+            <Ionicons name="analytics" size={20} color="#007AFF" />
+            <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+              Adventure Stats
+            </Text>
+          </View>
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Ionicons name="star" size={32} color="#FFD700" />
+              <Text style={styles.statNumber}>
+                {stats.totalXP.toLocaleString()}
+              </Text>
+              <Text style={styles.statLabel}>Total XP</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
+              <Text style={styles.statNumber}>{stats.questsCompleted}</Text>
+              <Text style={styles.statLabel}>Quests Completed</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Ionicons name="flame" size={32} color="#FF5722" />
+              <Text style={styles.statNumber}>{stats.currentStreak}</Text>
+              <Text style={styles.statLabel}>Current Streak</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Ionicons name="trophy" size={32} color="#2196F3" />
+              <Text style={styles.statNumber}>
+                {achievementsUI.filter((a) => a.unlocked).length}
+              </Text>
+              <Text style={styles.statLabel}>Achievements</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Friends Section */}
+        <View style={styles.friendsSection}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 15,
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Ionicons name="people" size={20} color="#007AFF" />
+              <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+                Friends ({userData?.friends?.length || 0})
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.manageFriendsButton}
+              onPress={() => setFriendsModalVisible(true)}
+            >
+              <Ionicons name="person-add" size={16} color="#007AFF" />
+              <Text style={styles.manageFriendsText}>Manage</Text>
+            </TouchableOpacity>
+          </View>
+
+          {userData?.friends && userData.friends.length > 0 ? (
+            <View style={styles.friendsList}>
+              {userData.friends.slice(0, 6).map((friend, index) => (
+                <View key={friend.friendId} style={styles.friendItem}>
+                  {friend.profileImageUrl ? (
+                    <Image
+                      source={{ uri: friend.profileImageUrl }}
+                      style={styles.friendAvatar}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.friendAvatar,
+                        styles.friendAvatarPlaceholder,
+                      ]}
+                    >
+                      <Text style={styles.friendAvatarText}>
+                        {getInitials(friend.displayName)}
+                      </Text>
+                    </View>
+                  )}
+                  <Text style={styles.friendName} numberOfLines={1}>
+                    {friend.displayName}
+                  </Text>
+                  <Text style={styles.friendLevel}>Lv.{friend.level}</Text>
+                </View>
+              ))}
+              {userData.friends.length > 6 && (
+                <TouchableOpacity
+                  style={styles.moreFriendsItem}
+                  onPress={() => setFriendsModalVisible(true)}
+                >
+                  <View style={styles.moreFriendsCircle}>
+                    <Text style={styles.moreFriendsText}>
+                      +{userData.friends.length - 6}
+                    </Text>
+                  </View>
+                  <Text style={styles.moreFriendsLabel}>More</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.emptyFriendsContainer}
+              onPress={() => setFriendsModalVisible(true)}
+            >
+              <Ionicons name="person-add-outline" size={32} color="#8E8E93" />
+              <Text style={styles.emptyFriendsText}>Add Friends</Text>
+              <Text style={styles.emptyFriendsSubtext}>
+                Connect with other explorers!
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Join Team Section - Only for users not in any teams */}
+        {userData?.role === "basic" &&
+          (!userData?.teams || userData.teams.length === 0) && (
+            <View style={styles.friendsSection}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 15,
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Ionicons name="people" size={20} color="#34C759" />
+                  <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+                    Join a Team
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.manageFriendsButton}
+                  onPress={() => setJoinTeamModalVisible(true)}
+                >
+                  <Ionicons name="enter" size={16} color="#34C759" />
+                  <Text
+                    style={[styles.manageFriendsText, { color: "#34C759" }]}
+                  >
+                    Join
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.emptyFriendsContainer,
+                  { borderColor: "#34C759" },
+                ]}
+                onPress={() => setJoinTeamModalVisible(true)}
+              >
+                <Ionicons name="people-outline" size={32} color="#34C759" />
+                <Text style={[styles.emptyFriendsText, { color: "#34C759" }]}>
+                  Join a Team
+                </Text>
+                <Text style={styles.emptyFriendsSubtext}>
+                  Enter a team code to join a team
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+        {/* Current Teams Section - For users already in teams (but not team leaders) */}
+        {userData?.teams &&
+          userData.teams.length > 0 &&
+          !isTeamLeader &&
+          !isAdmin && (
+            <View style={styles.friendsSection}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginBottom: 15,
+                }}
+              >
+                <Ionicons name="people-circle" size={20} color="#34C759" />
+                <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+                  My Teams ({userTeams.length})
+                </Text>
+              </View>
+
+              <View
+                style={[
+                  styles.emptyFriendsContainer,
+                  {
+                    borderColor: "#34C759",
+                    backgroundColor: "rgba(52, 199, 89, 0.1)",
+                  },
+                ]}
+              >
+                <Ionicons name="people-circle" size={32} color="#34C759" />
+                <Text style={[styles.emptyFriendsText, { color: "#34C759" }]}>
+                  Team Member
+                </Text>
+                <Text style={styles.emptyFriendsSubtext}>
+                  You're part of {userTeams.length} team
+                  {userTeams.length > 1 ? "s" : ""}
+                  {primaryTeam && ` • Primary: ${primaryTeam.name}`}
+                </Text>
+              </View>
+            </View>
+          )}
+
+        {/* Team Management Section - Only for Team Leaders */}
+        {isTeamLeader && (
+          <View style={styles.friendsSection}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 15,
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Ionicons name="people-circle" size={20} color="#34C759" />
+                <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+                  Team Management
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.manageFriendsButton}
+                onPress={() => setTeamManagementModalVisible(true)}
+              >
+                <Ionicons name="settings" size={16} color="#34C759" />
+                <Text style={[styles.manageFriendsText, { color: "#34C759" }]}>
+                  Manage
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Show teams info if user has teams, otherwise show create team prompt */}
+            {userTeams.length > 0 ? (
+              <View
+                style={[
+                  styles.emptyFriendsContainer,
+                  {
+                    borderColor: "#34C759",
+                    backgroundColor: "rgba(52, 199, 89, 0.1)",
+                  },
+                ]}
+              >
+                <View style={{ alignItems: "center", marginBottom: 15 }}>
+                  <Ionicons name="people-circle" size={32} color="#34C759" />
+                  <Text style={[styles.emptyFriendsText, { color: "#34C759" }]}>
+                    {userTeams.length} Team{userTeams.length > 1 ? "s" : ""}
+                  </Text>
+                  {primaryTeam && (
+                    <Text
+                      style={[styles.emptyFriendsSubtext, { marginBottom: 10 }]}
+                    >
+                      Primary: {primaryTeam.name}
+                    </Text>
+                  )}
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    width: "100%",
+                  }}
+                >
+                  <View style={{ alignItems: "center" }}>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "bold",
+                        color: "#34C759",
+                      }}
+                    >
+                      {teamMembers.length}
+                    </Text>
+                    <Text style={{ fontSize: 12, color: "#666" }}>Members</Text>
+                  </View>
+                  {primaryTeam?.maxMembers && (
+                    <View style={{ alignItems: "center" }}>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          fontWeight: "bold",
+                          color: "#34C759",
+                        }}
+                      >
+                        {primaryTeam.maxMembers}
+                      </Text>
+                      <Text style={{ fontSize: 12, color: "#666" }}>Max</Text>
+                    </View>
+                  )}
+                  <View style={{ alignItems: "center" }}>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "bold",
+                        color: "#34C759",
+                      }}
+                    >
+                      {userTeams.filter((t) => t.isActive).length}
+                    </Text>
+                    <Text style={{ fontSize: 12, color: "#666" }}>Active</Text>
+                  </View>
+                </View>
+
+                {primaryTeam?.inviteCode && (
+                  <View
+                    style={{
+                      marginTop: 15,
+                      padding: 10,
+                      backgroundColor: "rgba(0, 122, 255, 0.1)",
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: "#007AFF",
+                      borderStyle: "dashed",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: "#666",
+                        textAlign: "center",
+                        marginBottom: 5,
+                      }}
+                    >
+                      Current Invite Code ({primaryTeam.name}):
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "bold",
+                        color: "#007AFF",
+                        textAlign: "center",
+                        letterSpacing: 2,
+                      }}
+                    >
+                      {primaryTeam.inviteCode}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={[
+                  styles.emptyFriendsContainer,
+                  { borderColor: "#34C759" },
+                ]}
+                onPress={() => setTeamManagementModalVisible(true)}
+              >
+                <Ionicons
+                  name="people-circle-outline"
+                  size={32}
+                  color="#34C759"
+                />
+                <Text style={[styles.emptyFriendsText, { color: "#34C759" }]}>
+                  Create Your Team
+                </Text>
+                <Text style={styles.emptyFriendsSubtext}>
+                  Set up and manage team members
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        <View style={styles.achievementsSection}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginBottom: 15,
+            }}
+          >
+            <Ionicons name="trophy" size={20} color="#FFD700" />
+            <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+              Achievements
+            </Text>
+          </View>
+          <View style={styles.achievementsGrid}>
+            {achievementsUI.map((achievement) => (
+              <View
+                key={achievement.id}
+                style={[
+                  styles.achievementCard,
+                  !achievement.unlocked && styles.lockedAchievement,
+                ]}
+              >
+                <View
+                  style={[
+                    styles.achievementIcon,
+                    !achievement.unlocked && styles.lockedIcon,
+                  ]}
+                >
+                  <Ionicons
+                    name={
+                      achievement.unlocked
+                        ? (achievement.icon as any)
+                        : "lock-closed"
+                    }
+                    size={24}
+                    color={achievement.unlocked ? "#007AFF" : "#999"}
+                  />
+                </View>
+                <Text
+                  style={[
+                    styles.achievementTitle,
+                    !achievement.unlocked && styles.lockedText,
+                  ]}
+                >
+                  {achievement.title}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Admin Panel Button - Visible only to admins */}
+        {isAdmin && (
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#FF6B35",
+              margin: 20,
+              padding: 15,
+              borderRadius: 8,
+              alignItems: "center",
+            }}
+            onPress={() => router.push("/admin")}
+          >
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 16,
+                fontWeight: "600",
+              }}
+            >
+              Admin Panel
+            </Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+
+      <FriendsModal
+        visible={friendsModalVisible}
+        onClose={() => setFriendsModalVisible(false)}
       />
-    </ScrollView>
+
+      <TeamManagementModal
+        visible={teamManagementModalVisible}
+        onClose={() => setTeamManagementModalVisible(false)}
+        onTeamUpdate={refreshTeamData}
+      />
+
+      <JoinTeamModal
+        visible={joinTeamModalVisible}
+        onClose={() => setJoinTeamModalVisible(false)}
+        onTeamJoined={refreshUserData}
+      />
+    </ImageBackground>
   );
 }

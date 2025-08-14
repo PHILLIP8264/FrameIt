@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ImageBackground,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -142,208 +143,223 @@ export default function Signup() {
   }, [signInWithGoogle]);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <ImageBackground
+      source={require("../assets/images/blank.png")}
+      style={styles.backgroundContainer}
+      imageStyle={styles.backgroundImage}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>
-            Join FrameIt and start your creative journey
-          </Text>
-        </View>
-
-        <View style={styles.form}>
-          <View>
-            <View
-              style={[
-                styles.inputContainer,
-                displayNameError && styles.inputContainerError,
-              ]}
-            >
-              <Ionicons
-                name="person-outline"
-                size={20}
-                color={displayNameError ? "#FF3B30" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Display Name"
-                value={displayName}
-                onChangeText={(text) => {
-                  setDisplayName(text);
-                  if (displayNameError) setDisplayNameError("");
-                }}
-                autoCapitalize="words"
-                autoCorrect={false}
-              />
-            </View>
-            {displayNameError ? (
-              <Text style={styles.errorText}>{displayNameError}</Text>
-            ) : null}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>
+              Join FrameIt and start your creative journey
+            </Text>
           </View>
 
-          <View>
-            <View
-              style={[
-                styles.inputContainer,
-                emailError && styles.inputContainerError,
-              ]}
-            >
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={emailError ? "#FF3B30" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  if (emailError) setEmailError("");
-                }}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-            {emailError ? (
-              <Text style={styles.errorText}>{emailError}</Text>
-            ) : null}
-          </View>
-
-          <View>
-            <View
-              style={[
-                styles.inputContainer,
-                passwordError && styles.inputContainerError,
-              ]}
-            >
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={passwordError ? "#FF3B30" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  if (passwordError) setPasswordError("");
-                }}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
+          <View style={styles.form}>
+            <View>
+              <View
+                style={[
+                  styles.inputContainer,
+                  displayNameError && styles.inputContainerError,
+                ]}
               >
                 <Ionicons
-                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  name="person-outline"
+                  size={20}
+                  color={displayNameError ? "#FF3B30" : "#666"}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Display Name"
+                  value={displayName}
+                  onChangeText={(text) => {
+                    setDisplayName(text);
+                    if (displayNameError) setDisplayNameError("");
+                  }}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                />
+              </View>
+              {displayNameError ? (
+                <Text style={styles.errorText}>{displayNameError}</Text>
+              ) : null}
+            </View>
+
+            <View>
+              <View
+                style={[
+                  styles.inputContainer,
+                  emailError && styles.inputContainerError,
+                ]}
+              >
+                <Ionicons
+                  name="mail-outline"
+                  size={20}
+                  color={emailError ? "#FF3B30" : "#666"}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    if (emailError) setEmailError("");
+                  }}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+              {emailError ? (
+                <Text style={styles.errorText}>{emailError}</Text>
+              ) : null}
+            </View>
+
+            <View>
+              <View
+                style={[
+                  styles.inputContainer,
+                  passwordError && styles.inputContainerError,
+                ]}
+              >
+                <Ionicons
+                  name="lock-closed-outline"
                   size={20}
                   color={passwordError ? "#FF3B30" : "#666"}
+                  style={styles.inputIcon}
                 />
-              </TouchableOpacity>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    if (passwordError) setPasswordError("");
+                  }}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye-outline" : "eye-off-outline"}
+                    size={20}
+                    color={passwordError ? "#FF3B30" : "#666"}
+                  />
+                </TouchableOpacity>
+              </View>
+              {passwordError ? (
+                <Text style={styles.errorText}>{passwordError}</Text>
+              ) : null}
             </View>
-            {passwordError ? (
-              <Text style={styles.errorText}>{passwordError}</Text>
-            ) : null}
-          </View>
 
-          <View>
-            <View
-              style={[
-                styles.inputContainer,
-                confirmPasswordError && styles.inputContainerError,
-              ]}
-            >
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={confirmPasswordError ? "#FF3B30" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChangeText={(text) => {
-                  setConfirmPassword(text);
-                  if (confirmPasswordError) setConfirmPasswordError("");
-                }}
-                secureTextEntry={!showConfirmPassword}
-                autoCapitalize="none"
-              />
-              <TouchableOpacity
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={styles.eyeIcon}
+            <View>
+              <View
+                style={[
+                  styles.inputContainer,
+                  confirmPasswordError && styles.inputContainerError,
+                ]}
               >
                 <Ionicons
-                  name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
+                  name="lock-closed-outline"
                   size={20}
                   color={confirmPasswordError ? "#FF3B30" : "#666"}
+                  style={styles.inputIcon}
                 />
-              </TouchableOpacity>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChangeText={(text) => {
+                    setConfirmPassword(text);
+                    if (confirmPasswordError) setConfirmPasswordError("");
+                  }}
+                  secureTextEntry={!showConfirmPassword}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons
+                    name={
+                      showConfirmPassword ? "eye-outline" : "eye-off-outline"
+                    }
+                    size={20}
+                    color={confirmPasswordError ? "#FF3B30" : "#666"}
+                  />
+                </TouchableOpacity>
+              </View>
+              {confirmPasswordError ? (
+                <Text style={styles.errorText}>{confirmPasswordError}</Text>
+              ) : null}
             </View>
-            {confirmPasswordError ? (
-              <Text style={styles.errorText}>{confirmPasswordError}</Text>
-            ) : null}
-          </View>
 
-          <SwipeButton
-            ref={swipeButtonRef}
-            leftText="Login"
-            rightText="Sign Up"
-            centerText="Swipe Me"
-            onSwipeLeft={handleGoToLogin}
-            onSwipeRight={handleSignup}
-            loading={loading}
-            disabled={loading}
-            instructionText="Swipe left to Login • Swipe right to Sign Up"
-          />
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={handleGoogleSignIn}
-            disabled={loading}
-          >
-            <Ionicons
-              name="logo-google"
-              size={20}
-              color="#fff"
-              style={styles.googleIcon}
+            <SwipeButton
+              ref={swipeButtonRef}
+              leftText="Login"
+              rightText="Sign Up"
+              centerText="Swipe Me"
+              onSwipeLeft={handleGoToLogin}
+              onSwipeRight={handleSignup}
+              loading={loading}
+              disabled={loading}
+              instructionText="Swipe left to Login • Swipe right to Sign Up"
             />
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={handleGoToLogin}
-            disabled={loading}
-          >
-            <Text style={styles.loginButtonText}>
-              Already have an account? Sign In
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity
+              style={styles.googleButton}
+              onPress={handleGoogleSignIn}
+              disabled={loading}
+            >
+              <Ionicons
+                name="logo-google"
+                size={20}
+                color="#fff"
+                style={styles.googleIcon}
+              />
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={handleGoToLogin}
+              disabled={loading}
+            >
+              <Text style={styles.loginButtonText}>
+                Already have an account? Sign In
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  backgroundContainer: {
+    flex: 1,
+  },
+  backgroundImage: {
+    opacity: 1,
+    resizeMode: "cover" as const,
+  },
   container: {
     flex: 1,
     backgroundColor: "transparent",

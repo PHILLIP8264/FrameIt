@@ -9,6 +9,7 @@ import {
   Modal,
   ScrollView,
   RefreshControl,
+  ImageBackground,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { challengesStyles as styles } from "../../styles";
@@ -516,343 +517,373 @@ export default function Challenges() {
     .reduce((sum, quest) => sum + quest.xpReward, 0);
 
   return (
-    <View style={styles.container}>
-      {/* Stats Header */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{completedCount}</Text>
-          <Text style={styles.statLabel}>Completed</Text>
+    <ImageBackground
+      source={require("../../assets/images/blank.png")}
+      style={styles.container}
+      imageStyle={styles.backgroundImage}
+    >
+      <View style={[styles.container, { backgroundColor: "transparent" }]}>
+        {/* Stats Header */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{completedCount}</Text>
+            <Text style={styles.statLabel}>Completed</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{totalCount}</Text>
+            <Text style={styles.statLabel}>Total Quests</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{totalXP}</Text>
+            <Text style={styles.statLabel}>XP Earned</Text>
+          </View>
         </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{totalCount}</Text>
-          <Text style={styles.statLabel}>Total Quests</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{totalXP}</Text>
-          <Text style={styles.statLabel}>XP Earned</Text>
-        </View>
-      </View>
 
-      {/* View Toggle & Location Banner */}
-      <View style={styles.locationBanner}>
-        <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
-          <Ionicons name="location" size={20} color="#007AFF" />
-          <Text style={styles.locationBannerText}>
-            {userLocation ? "Quests near you" : "Loading location..."}
-          </Text>
+        {/* View Toggle & Location Banner */}
+        <View style={styles.locationBanner}>
+          <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+            <Ionicons name="location" size={20} color="#007AFF" />
+            <Text style={styles.locationBannerText}>
+              {userLocation ? "Quests near you" : "Loading location..."}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.mapToggleButton}
+            onPress={() => setShowMap(!showMap)}
+          >
+            <Ionicons
+              name={showMap ? "list" : "map"}
+              size={20}
+              color="#007AFF"
+            />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.mapToggleButton}
-          onPress={() => setShowMap(!showMap)}
-        >
-          <Ionicons name={showMap ? "list" : "map"} size={20} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
 
-      {/* Map or List View */}
-      {showMap ? (
-        <QuestDiscoveryMap
-          quests={quests}
-          userLocation={userLocation || undefined}
-          onQuestPress={(quest) => {
-            // Find the corresponding QuestWithStatus object
-            const questWithStatus = quests.find(
-              (q) => q.questId === quest.questId
-            );
-            if (questWithStatus) {
-              setSelectedQuest(questWithStatus);
+        {/* Map or List View */}
+        {showMap ? (
+          <QuestDiscoveryMap
+            quests={quests}
+            userLocation={userLocation || undefined}
+            onQuestPress={(quest) => {
+              // Find the corresponding QuestWithStatus object
+              const questWithStatus = quests.find(
+                (q) => q.questId === quest.questId
+              );
+              if (questWithStatus) {
+                setSelectedQuest(questWithStatus);
+              }
+            }}
+            selectedQuestId={selectedQuest?.questId}
+          />
+        ) : (
+          <FlatList
+            data={quests}
+            renderItem={renderQuest}
+            keyExtractor={(item) => item.questId}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContainer}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
-          }}
-          selectedQuestId={selectedQuest?.questId}
-        />
-      ) : (
-        <FlatList
-          data={quests}
-          renderItem={renderQuest}
-          keyExtractor={(item) => item.questId}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
-      )}
+          />
+        )}
 
-      {/* Quest Details Modal */}
-      {selectedQuest && (
-        <Modal
-          visible={!!selectedQuest}
-          animationType="slide"
-          presentationStyle="pageSheet"
-          onRequestClose={() => setSelectedQuest(null)}
-        >
-          <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
-            <View style={{ padding: 20 }}>
-              {/* Modal Header */}
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: 20,
-                }}
-              >
-                <Text style={{ fontSize: 24, fontWeight: "bold", flex: 1 }}>
-                  {selectedQuest.title}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => setSelectedQuest(null)}
-                  style={{ padding: 10 }}
+        {/* Quest Details Modal */}
+        {selectedQuest && (
+          <Modal
+            visible={!!selectedQuest}
+            animationType="slide"
+            presentationStyle="pageSheet"
+            onRequestClose={() => setSelectedQuest(null)}
+          >
+            <ScrollView style={{ flex: 1, backgroundColor: "transparent" }}>
+              <View style={{ padding: 20 }}>
+                {/* Modal Header */}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 20,
+                  }}
                 >
-                  <Ionicons name="close" size={24} color="#666" />
+                  <Text style={{ fontSize: 24, fontWeight: "bold", flex: 1 }}>
+                    {selectedQuest.title}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => setSelectedQuest(null)}
+                    style={{ padding: 10 }}
+                  >
+                    <Ionicons name="close" size={24} color="#666" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Quest Details */}
+                <View style={{ marginBottom: 20 }}>
+                  <Text style={{ fontSize: 16, color: "#666", lineHeight: 24 }}>
+                    {selectedQuest.description}
+                  </Text>
+                </View>
+
+                {/* Location & Distance */}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginBottom: 15,
+                    padding: 15,
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: 10,
+                  }}
+                >
+                  <Ionicons name="location" size={20} color="#007AFF" />
+                  <View style={{ marginLeft: 10, flex: 1 }}>
+                    <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+                      {selectedQuest.location}
+                    </Text>
+                    <Text style={{ color: "#666", fontSize: 14 }}>
+                      {selectedQuest.addressDetails.street},{" "}
+                      {selectedQuest.addressDetails.city}
+                    </Text>
+                    {selectedQuest.distance && (
+                      <Text style={{ color: "#007AFF", fontSize: 12 }}>
+                        {formatDistance(selectedQuest.distance)} away
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                {/* Photo Requirements */}
+                <View style={{ marginBottom: 20 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 10,
+                    }}
+                  >
+                    <Ionicons name="camera" size={18} color="#007AFF" />
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "bold",
+                        marginLeft: 8,
+                      }}
+                    >
+                      Photo Requirements
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: 10,
+                      padding: 15,
+                    }}
+                  >
+                    <Text style={{ fontSize: 16, marginBottom: 5 }}>
+                      <Text style={{ fontWeight: "bold" }}>Subjects: </Text>
+                      {selectedQuest.photoRequirements.subjects.join(", ")}
+                    </Text>
+                    {selectedQuest.photoRequirements.style && (
+                      <Text style={{ fontSize: 16, marginBottom: 5 }}>
+                        <Text style={{ fontWeight: "bold" }}>Style: </Text>
+                        {selectedQuest.photoRequirements.style}
+                      </Text>
+                    )}
+                    {selectedQuest.photoRequirements.timeOfDay !== "any" && (
+                      <Text style={{ fontSize: 16, marginBottom: 5 }}>
+                        <Text style={{ fontWeight: "bold" }}>Best Time: </Text>
+                        {selectedQuest.photoRequirements.timeOfDay}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                {/* Rewards */}
+                <View style={{ marginBottom: 20 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 10,
+                    }}
+                  >
+                    <Ionicons name="trophy" size={18} color="#FFD700" />
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "bold",
+                        marginLeft: 8,
+                      }}
+                    >
+                      Rewards
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      backgroundColor: "#fff5e6",
+                      borderRadius: 10,
+                      padding: 15,
+                    }}
+                  >
+                    <Text style={{ fontSize: 16, marginBottom: 5 }}>
+                      <Text style={{ fontWeight: "bold" }}>Base XP: </Text>
+                      {selectedQuest.rewards.baseXP} points
+                    </Text>
+                    {selectedQuest.rewards.bonusXP.firstTime > 0 && (
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          marginBottom: 5,
+                          color: "#FF9500",
+                        }}
+                      >
+                        <Text style={{ fontWeight: "bold" }}>
+                          First Time Bonus:{" "}
+                        </Text>
+                        +{selectedQuest.rewards.bonusXP.firstTime} XP
+                      </Text>
+                    )}
+                    {selectedQuest.rewards.bonusXP.speedBonus > 0 && (
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          marginBottom: 5,
+                          color: "#FF9500",
+                        }}
+                      >
+                        <Text style={{ fontWeight: "bold" }}>
+                          Speed Bonus:{" "}
+                        </Text>
+                        +{selectedQuest.rewards.bonusXP.speedBonus} XP (for
+                        quick completion)
+                      </Text>
+                    )}
+                    {selectedQuest.rewards.bonusXP.qualityBonus > 0 && (
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          marginBottom: 5,
+                          color: "#FF9500",
+                        }}
+                      >
+                        <Text style={{ fontWeight: "bold" }}>
+                          Quality Bonus:{" "}
+                        </Text>
+                        +{selectedQuest.rewards.bonusXP.qualityBonus} XP (for
+                        high-rated photos)
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                {/* Quest Info */}
+                <View style={{ marginBottom: 20 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 10,
+                    }}
+                  >
+                    <Ionicons
+                      name="information-circle"
+                      size={18}
+                      color="#007AFF"
+                    />
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "bold",
+                        marginLeft: 8,
+                      }}
+                    >
+                      Quest Info
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: 10,
+                      padding: 15,
+                    }}
+                  >
+                    <Text style={{ fontSize: 16, marginBottom: 5 }}>
+                      <Text style={{ fontWeight: "bold" }}>Difficulty: </Text>
+                      {selectedQuest.difficulty}
+                    </Text>
+                    <Text style={{ fontSize: 16, marginBottom: 5 }}>
+                      <Text style={{ fontWeight: "bold" }}>
+                        Estimated Time:{" "}
+                      </Text>
+                      {selectedQuest.estimatedDuration} minutes
+                    </Text>
+                    <Text style={{ fontSize: 16, marginBottom: 5 }}>
+                      <Text style={{ fontWeight: "bold" }}>Availability: </Text>
+                      {formatAvailableHours(selectedQuest)}
+                    </Text>
+                    {selectedQuest.maxAttempts && (
+                      <Text style={{ fontSize: 16, marginBottom: 5 }}>
+                        <Text style={{ fontWeight: "bold" }}>
+                          Max Attempts:{" "}
+                        </Text>
+                        {selectedQuest.maxAttempts}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                {/* Start Quest Button */}
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: selectedQuest.completed
+                      ? "#4CAF50"
+                      : !selectedQuest.canAttempt
+                      ? "#999"
+                      : "#007AFF",
+                    borderRadius: 15,
+                    padding: 20,
+                    alignItems: "center",
+                    marginBottom: 20,
+                  }}
+                  onPress={() => {
+                    setSelectedQuest(null);
+                    if (!selectedQuest.completed && selectedQuest.canAttempt) {
+                      toggleQuest(selectedQuest.questId);
+                    }
+                  }}
+                  disabled={
+                    !selectedQuest.canAttempt && !selectedQuest.completed
+                  }
+                >
+                  <Text
+                    style={{ color: "white", fontSize: 18, fontWeight: "bold" }}
+                  >
+                    {selectedQuest.completed
+                      ? "Completed"
+                      : !selectedQuest.canAttempt
+                      ? "Locked"
+                      : "Start Quest"}
+                  </Text>
+                  {!selectedQuest.canAttempt &&
+                    selectedQuest.eligibilityReason && (
+                      <Text
+                        style={{
+                          color: "white",
+                          fontSize: 14,
+                          marginTop: 5,
+                          opacity: 0.8,
+                        }}
+                      >
+                        {selectedQuest.eligibilityReason}
+                      </Text>
+                    )}
                 </TouchableOpacity>
               </View>
-
-              {/* Quest Details */}
-              <View style={{ marginBottom: 20 }}>
-                <Text style={{ fontSize: 16, color: "#666", lineHeight: 24 }}>
-                  {selectedQuest.description}
-                </Text>
-              </View>
-
-              {/* Location & Distance */}
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginBottom: 15,
-                  padding: 15,
-                  backgroundColor: "#f5f5f5",
-                  borderRadius: 10,
-                }}
-              >
-                <Ionicons name="location" size={20} color="#007AFF" />
-                <View style={{ marginLeft: 10, flex: 1 }}>
-                  <Text style={{ fontWeight: "bold", fontSize: 16 }}>
-                    {selectedQuest.location}
-                  </Text>
-                  <Text style={{ color: "#666", fontSize: 14 }}>
-                    {selectedQuest.addressDetails.street},{" "}
-                    {selectedQuest.addressDetails.city}
-                  </Text>
-                  {selectedQuest.distance && (
-                    <Text style={{ color: "#007AFF", fontSize: 12 }}>
-                      {formatDistance(selectedQuest.distance)} away
-                    </Text>
-                  )}
-                </View>
-              </View>
-
-              {/* Photo Requirements */}
-              <View style={{ marginBottom: 20 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
-                  }}
-                >
-                  <Ionicons name="camera" size={18} color="#007AFF" />
-                  <Text
-                    style={{ fontSize: 18, fontWeight: "bold", marginLeft: 8 }}
-                  >
-                    Photo Requirements
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    backgroundColor: "#f5f5f5",
-                    borderRadius: 10,
-                    padding: 15,
-                  }}
-                >
-                  <Text style={{ fontSize: 16, marginBottom: 5 }}>
-                    <Text style={{ fontWeight: "bold" }}>Subjects: </Text>
-                    {selectedQuest.photoRequirements.subjects.join(", ")}
-                  </Text>
-                  {selectedQuest.photoRequirements.style && (
-                    <Text style={{ fontSize: 16, marginBottom: 5 }}>
-                      <Text style={{ fontWeight: "bold" }}>Style: </Text>
-                      {selectedQuest.photoRequirements.style}
-                    </Text>
-                  )}
-                  {selectedQuest.photoRequirements.timeOfDay !== "any" && (
-                    <Text style={{ fontSize: 16, marginBottom: 5 }}>
-                      <Text style={{ fontWeight: "bold" }}>Best Time: </Text>
-                      {selectedQuest.photoRequirements.timeOfDay}
-                    </Text>
-                  )}
-                </View>
-              </View>
-
-              {/* Rewards */}
-              <View style={{ marginBottom: 20 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
-                  }}
-                >
-                  <Ionicons name="trophy" size={18} color="#FFD700" />
-                  <Text
-                    style={{ fontSize: 18, fontWeight: "bold", marginLeft: 8 }}
-                  >
-                    Rewards
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    backgroundColor: "#fff5e6",
-                    borderRadius: 10,
-                    padding: 15,
-                  }}
-                >
-                  <Text style={{ fontSize: 16, marginBottom: 5 }}>
-                    <Text style={{ fontWeight: "bold" }}>Base XP: </Text>
-                    {selectedQuest.rewards.baseXP} points
-                  </Text>
-                  {selectedQuest.rewards.bonusXP.firstTime > 0 && (
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        marginBottom: 5,
-                        color: "#FF9500",
-                      }}
-                    >
-                      <Text style={{ fontWeight: "bold" }}>
-                        First Time Bonus:{" "}
-                      </Text>
-                      +{selectedQuest.rewards.bonusXP.firstTime} XP
-                    </Text>
-                  )}
-                  {selectedQuest.rewards.bonusXP.speedBonus > 0 && (
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        marginBottom: 5,
-                        color: "#FF9500",
-                      }}
-                    >
-                      <Text style={{ fontWeight: "bold" }}>Speed Bonus: </Text>+
-                      {selectedQuest.rewards.bonusXP.speedBonus} XP (for quick
-                      completion)
-                    </Text>
-                  )}
-                  {selectedQuest.rewards.bonusXP.qualityBonus > 0 && (
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        marginBottom: 5,
-                        color: "#FF9500",
-                      }}
-                    >
-                      <Text style={{ fontWeight: "bold" }}>
-                        Quality Bonus:{" "}
-                      </Text>
-                      +{selectedQuest.rewards.bonusXP.qualityBonus} XP (for
-                      high-rated photos)
-                    </Text>
-                  )}
-                </View>
-              </View>
-
-              {/* Quest Info */}
-              <View style={{ marginBottom: 20 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
-                  }}
-                >
-                  <Ionicons
-                    name="information-circle"
-                    size={18}
-                    color="#007AFF"
-                  />
-                  <Text
-                    style={{ fontSize: 18, fontWeight: "bold", marginLeft: 8 }}
-                  >
-                    Quest Info
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    backgroundColor: "#f5f5f5",
-                    borderRadius: 10,
-                    padding: 15,
-                  }}
-                >
-                  <Text style={{ fontSize: 16, marginBottom: 5 }}>
-                    <Text style={{ fontWeight: "bold" }}>Difficulty: </Text>
-                    {selectedQuest.difficulty}
-                  </Text>
-                  <Text style={{ fontSize: 16, marginBottom: 5 }}>
-                    <Text style={{ fontWeight: "bold" }}>Estimated Time: </Text>
-                    {selectedQuest.estimatedDuration} minutes
-                  </Text>
-                  <Text style={{ fontSize: 16, marginBottom: 5 }}>
-                    <Text style={{ fontWeight: "bold" }}>Availability: </Text>
-                    {formatAvailableHours(selectedQuest)}
-                  </Text>
-                  {selectedQuest.maxAttempts && (
-                    <Text style={{ fontSize: 16, marginBottom: 5 }}>
-                      <Text style={{ fontWeight: "bold" }}>Max Attempts: </Text>
-                      {selectedQuest.maxAttempts}
-                    </Text>
-                  )}
-                </View>
-              </View>
-
-              {/* Start Quest Button */}
-              <TouchableOpacity
-                style={{
-                  backgroundColor: selectedQuest.completed
-                    ? "#4CAF50"
-                    : !selectedQuest.canAttempt
-                    ? "#999"
-                    : "#007AFF",
-                  borderRadius: 15,
-                  padding: 20,
-                  alignItems: "center",
-                  marginBottom: 20,
-                }}
-                onPress={() => {
-                  setSelectedQuest(null);
-                  if (!selectedQuest.completed && selectedQuest.canAttempt) {
-                    toggleQuest(selectedQuest.questId);
-                  }
-                }}
-                disabled={!selectedQuest.canAttempt && !selectedQuest.completed}
-              >
-                <Text
-                  style={{ color: "white", fontSize: 18, fontWeight: "bold" }}
-                >
-                  {selectedQuest.completed
-                    ? "Completed"
-                    : !selectedQuest.canAttempt
-                    ? "Locked"
-                    : "Start Quest"}
-                </Text>
-                {!selectedQuest.canAttempt &&
-                  selectedQuest.eligibilityReason && (
-                    <Text
-                      style={{
-                        color: "white",
-                        fontSize: 14,
-                        marginTop: 5,
-                        opacity: 0.8,
-                      }}
-                    >
-                      {selectedQuest.eligibilityReason}
-                    </Text>
-                  )}
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </Modal>
-      )}
-    </View>
+            </ScrollView>
+          </Modal>
+        )}
+      </View>
+    </ImageBackground>
   );
 }

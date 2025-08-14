@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ImageBackground,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -88,141 +89,154 @@ export default function Login() {
   }, [signInWithGoogle]);
 
   return (
-    <KeyboardAvoidingView
-      key="login-screen"
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <ImageBackground
+      source={require("../assets/images/blank.png")}
+      style={styles.backgroundContainer}
+      imageStyle={styles.backgroundImage}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Welcome Back!</Text>
-          <Text style={styles.subtitle}>Login to continue your framing</Text>
-        </View>
-
-        <View style={styles.form}>
-          <View>
-            <View
-              style={[
-                styles.inputContainer,
-                emailError && styles.inputContainerError,
-              ]}
-            >
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={emailError ? "#FF3B30" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  if (emailError) setEmailError("");
-                }}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-            {emailError ? (
-              <Text style={styles.errorText}>{emailError}</Text>
-            ) : null}
+      <KeyboardAvoidingView
+        key="login-screen"
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Welcome Back!</Text>
+            <Text style={styles.subtitle}>Login to continue your framing</Text>
           </View>
 
-          <View>
-            <View
-              style={[
-                styles.inputContainer,
-                passwordError && styles.inputContainerError,
-              ]}
-            >
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={passwordError ? "#FF3B30" : "#666"}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  if (passwordError) setPasswordError("");
-                }}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
+          <View style={styles.form}>
+            <View>
+              <View
+                style={[
+                  styles.inputContainer,
+                  emailError && styles.inputContainerError,
+                ]}
               >
                 <Ionicons
-                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  name="mail-outline"
+                  size={20}
+                  color={emailError ? "#FF3B30" : "#666"}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    if (emailError) setEmailError("");
+                  }}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+              {emailError ? (
+                <Text style={styles.errorText}>{emailError}</Text>
+              ) : null}
+            </View>
+
+            <View>
+              <View
+                style={[
+                  styles.inputContainer,
+                  passwordError && styles.inputContainerError,
+                ]}
+              >
+                <Ionicons
+                  name="lock-closed-outline"
                   size={20}
                   color={passwordError ? "#FF3B30" : "#666"}
+                  style={styles.inputIcon}
                 />
-              </TouchableOpacity>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    if (passwordError) setPasswordError("");
+                  }}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye-outline" : "eye-off-outline"}
+                    size={20}
+                    color={passwordError ? "#FF3B30" : "#666"}
+                  />
+                </TouchableOpacity>
+              </View>
+              {passwordError ? (
+                <Text style={styles.errorText}>{passwordError}</Text>
+              ) : null}
             </View>
-            {passwordError ? (
-              <Text style={styles.errorText}>{passwordError}</Text>
-            ) : null}
-          </View>
 
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.forgotPassword}>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
 
-          <SwipeButton
-            ref={swipeButtonRef}
-            leftText="Sign Up"
-            rightText="Login"
-            centerText="Swipe Me"
-            onSwipeLeft={handleGoToSignup}
-            onSwipeRight={handleLogin}
-            loading={loading}
-            disabled={loading}
-            instructionText="Swipe left to Sign Up • Swipe right to login"
-          />
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={handleGoogleSignIn}
-            disabled={loading}
-          >
-            <Ionicons
-              name="logo-google"
-              size={20}
-              color="#fff"
-              style={styles.googleIcon}
+            <SwipeButton
+              ref={swipeButtonRef}
+              leftText="Sign Up"
+              rightText="Login"
+              centerText="Swipe Me"
+              onSwipeLeft={handleGoToSignup}
+              onSwipeRight={handleLogin}
+              loading={loading}
+              disabled={loading}
+              instructionText="Swipe left to Sign Up • Swipe right to login"
             />
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.signupButton}
-            onPress={handleGoToSignup}
-            disabled={loading}
-          >
-            <Text style={styles.signupButtonText}>
-              Don't have an account? Sign Up
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity
+              style={styles.googleButton}
+              onPress={handleGoogleSignIn}
+              disabled={loading}
+            >
+              <Ionicons
+                name="logo-google"
+                size={20}
+                color="#fff"
+                style={styles.googleIcon}
+              />
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.signupButton}
+              onPress={handleGoToSignup}
+              disabled={loading}
+            >
+              <Text style={styles.signupButtonText}>
+                Don't have an account? Sign Up
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  backgroundContainer: {
+    flex: 1,
+  },
+  backgroundImage: {
+    opacity: 1,
+    resizeMode: "cover" as const,
+  },
   container: {
     flex: 1,
     backgroundColor: "transparent",
