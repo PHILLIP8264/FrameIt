@@ -7,13 +7,13 @@ import { getStorage } from "firebase/storage";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyA-wmT4AhZMPYrNIu1G69XUi_dW3xokuXI",
-  authDomain: "fameit-ee617.firebaseapp.com",
-  projectId: "fameit-ee617",
-  storageBucket: "fameit-ee617.firebasestorage.app",
-  messagingSenderId: "635352633359",
-  appId: "1:635352633359:web:e8c3cef76d09371464137a",
-  measurementId: "G-5551QMFE82",
+  apiKey: "AIzaSyB2e-FVDgEA85QuVxKux6CHG7Jqm5Yh48k",
+  authDomain: "frameit-e6e16.firebaseapp.com",
+  projectId: "frameit-e6e16",
+  storageBucket: "frameit-e6e16.firebasestorage.app",
+  messagingSenderId: "459361826040",
+  appId: "1:459361826040:web:b572dcbd12c30744f9b70d",
+  measurementId: "G-RQNSBEJLG6",
 };
 
 // Initialize Firebase
@@ -21,7 +21,7 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase services
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db = getFirestore(app, "frameit-data");
 export const storage = getStorage(app);
 
 export default app;

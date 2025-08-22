@@ -10,7 +10,7 @@ import {
 } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../config/firebase";
-import SwipeButton, { SwipeButtonRef } from "../SwipeButton";
+import SwipeButton, { SwipeButtonRef } from "../shared/SwipeButton";
 
 interface EmailModalProps {
   visible: boolean;
@@ -103,10 +103,8 @@ export const EmailModal: React.FC<EmailModalProps> = ({
         [
           {
             text: "OK",
-            onPress: () => {
+            onLongPress: () => {
               onClose();
-              // The email will be automatically updated in Firebase Auth once verified
-              // The real-time listener in the settings screen will pick up the change
             },
           },
         ]

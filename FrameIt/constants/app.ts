@@ -29,6 +29,4 @@ export const STORAGE_KEYS = {
   OFFLINE_DATA: "@frameit_offline_data",
 } as const;
 
-export const API_ENDPOINTS = {
-  // Add API endpoints here if you have any
-} as const;
+export const API_ENDPOINTS = {} as const;

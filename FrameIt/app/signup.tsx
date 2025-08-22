@@ -14,7 +14,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
-import SwipeButton, { SwipeButtonRef } from "../components/SwipeButton";
+import SwipeButton, { SwipeButtonRef } from "../components/shared/SwipeButton";
 import { db } from "../config/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
@@ -119,8 +119,6 @@ export default function Signup() {
       }
       if (error.message?.includes("display name")) {
         setDisplayNameError("Unable to verify display name availability");
-      } else {
-        Alert.alert("Signup Error", "contact administrator");
       }
     }
   }, [email, password, confirmPassword, displayName, signUp]);
@@ -128,19 +126,6 @@ export default function Signup() {
   const handleGoToLogin = useCallback(() => {
     router.push("/login");
   }, []);
-
-  const handleGoogleSignIn = useCallback(async () => {
-    try {
-      setLoading(true);
-      await signInWithGoogle();
-    } catch (error: any) {
-      setLoading(false);
-      Alert.alert(
-        "Google Sign-In Error",
-        error.message || "Failed to sign in with Google"
-      );
-    }
-  }, [signInWithGoogle]);
 
   return (
     <ImageBackground
@@ -247,7 +232,7 @@ export default function Signup() {
                   autoCapitalize="none"
                 />
                 <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
+                  onLongPress={() => setShowPassword(!showPassword)}
                   style={styles.eyeIcon}
                 >
                   <Ionicons
@@ -287,7 +272,9 @@ export default function Signup() {
                   autoCapitalize="none"
                 />
                 <TouchableOpacity
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  onLongPress={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
                   style={styles.eyeIcon}
                 >
                   <Ionicons
@@ -315,36 +302,6 @@ export default function Signup() {
               disabled={loading}
               instructionText="Swipe left to Login • Swipe right to Sign Up"
             />
-
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <TouchableOpacity
-              style={styles.googleButton}
-              onPress={handleGoogleSignIn}
-              disabled={loading}
-            >
-              <Ionicons
-                name="logo-google"
-                size={20}
-                color="#fff"
-                style={styles.googleIcon}
-              />
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.loginButton}
-              onPress={handleGoToLogin}
-              disabled={loading}
-            >
-              <Text style={styles.loginButtonText}>
-                Already have an account? Sign In
-              </Text>
-            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -397,7 +354,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: "white",
     borderRadius: 12,
     marginBottom: 16,
     paddingHorizontal: 16,
@@ -452,52 +409,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#ddd",
-  },
-  dividerText: {
-    marginHorizontal: 16,
-    color: "#666",
-    fontSize: 14,
-  },
-  googleButton: {
-    backgroundColor: "#DB4437",
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    marginBottom: 20,
-    flexDirection: "row",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  googleIcon: {
-    marginRight: 12,
-  },
-  googleButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  loginButton: {
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-  loginButtonText: {
-    color: "#007AFF",
-    fontSize: 16,
-    fontWeight: "500",
   },
 });

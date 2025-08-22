@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
+import NotificationService from "../services/NotificationService";
 
 interface AuthContextType {
   user: User | null;
@@ -42,9 +43,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       setLoading(false);
+
+      // Initialize notification service when user signs in
+      if (user) {
+        try {
+          await NotificationService.initialize();
+        } catch (error) {
+          console.error("Error initializing notification service:", error);
+        }
+      }
     });
 
     return unsubscribe;
@@ -87,8 +97,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         signedUpDate: new Date().toISOString(),
         streakCount: 0,
         profileImageUrl: "",
-        tag: "beginner", // Default tag for new users
-        group: null,
+        tag: "beginner",
+        teams: [],
+        primaryTeam: null,
+        notificationSettings: {
+          questCompletion: true,
+          teamInvites: true,
+          contestResults: true,
+          dailyReminders: true,
+          achievements: true,
+          moderation: true,
+        },
       });
     } catch (error) {
       throw error;
@@ -96,7 +115,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signInWithGoogle = async () => {
-    // Temporarily disabled - Google Sign-In requires custom development build
     throw new Error(
       "Google Sign-In is not available in Expo Go. Please use email/password authentication."
     );

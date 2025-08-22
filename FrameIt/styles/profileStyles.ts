@@ -1,494 +1,650 @@
 import { StyleSheet } from "react-native";
+import {
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+  typography,
+} from "./commonStyles";
 
 export const profileStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "transparent",
   },
-  backgroundImage: {
-    opacity: 1,
-    resizeMode: "cover" as const,
+
+  // Loading and error states
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+
+    paddingHorizontal: spacing.xl,
   },
-  scrollContainer: {
-    backgroundColor: "transparent",
+
+  loadingText: {
+    ...typography.h6,
+    color: colors.textSecondary,
+    marginTop: spacing.xl,
+    textAlign: "center",
   },
+
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+
+    paddingHorizontal: spacing.xl,
+  },
+
+  errorText: {
+    ...typography.body1,
+    color: colors.error,
+    textAlign: "center",
+  },
+
+  // Header styles
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xl,
+    backgroundColor: "white",
+    borderBottomWidth: 0,
+    elevation: 8,
   },
-  backButton: {
-    padding: 8,
-  },
+
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#007AFF",
+    ...typography.h3,
+    color: colors.text,
+    textAlign: "center",
+    flex: 1,
+    fontWeight: "700",
   },
-  settingsButton: {
-    padding: 8,
-  },
-  profileSection: {
-    alignItems: "center",
-    paddingHorizontal: 20,
-    marginBottom: 30,
-  },
-  avatarContainer: {
-    position: "relative",
-    marginBottom: 16,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#007AFF",
+
+  backButton: {
+    padding: spacing.md,
+    borderRadius: borderRadius.round,
+    backgroundColor: colors.backgroundLight,
+    ...shadows.small,
+    width: 50,
+    height: 50,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
   },
+
+  settingsButton: {
+    padding: spacing.md,
+    borderRadius: borderRadius.round,
+    backgroundColor: colors.primary,
+    ...shadows.medium,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  scrollContainer: {
+    paddingHorizontal: 0,
+    paddingBottom: spacing.massive,
+    paddingTop: spacing.sm,
+  },
+
+  // Profile section
+  profileSection: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginHorizontal: spacing.lg,
+    marginVertical: spacing.lg,
+    alignItems: "center",
+    ...shadows.large,
+    borderWidth: 0,
+    elevation: 12,
+  },
+
+  avatarContainer: {
+    position: "relative",
+    marginBottom: spacing.xl,
+  },
+
   avatarImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 3,
-    borderColor: "#007AFF",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 4,
+    borderColor: colors.primary,
   },
+
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 4,
+    borderColor: colors.surface,
+    ...shadows.medium,
+  },
+
   avatarText: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#fff",
+    ...typography.h1,
+    color: colors.surface,
+    fontWeight: "700",
   },
-  levelBadge: {
-    position: "absolute",
-    bottom: -5,
-    right: -5,
-    backgroundColor: "#FFD700",
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderWidth: 2,
-    borderColor: "white",
-  },
-  levelBadgeText: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#333",
-  },
+
   cameraIcon: {
     position: "absolute",
     bottom: 5,
-    left: -5,
-    backgroundColor: "#007AFF",
-    borderRadius: 12,
-    width: 24,
-    height: 24,
+    right: 5,
+    backgroundColor: colors.primary,
+    borderRadius: 18,
+    width: 36,
+    height: 36,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "white",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    ...shadows.medium,
+    borderWidth: 3,
+    borderColor: colors.surface,
   },
+
   userName: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 4,
+    ...typography.h2,
+    color: colors.text,
+    marginBottom: spacing.sm,
+    textAlign: "center",
+    fontWeight: "700",
   },
+
   userTitle: {
-    fontSize: 16,
-    color: "#007AFF",
+    ...typography.h6,
+    color: colors.primary,
+    marginBottom: spacing.xs,
+    textAlign: "center",
     fontWeight: "600",
-    marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
+
   userEmail: {
-    fontSize: 14,
-    color: "#888",
-    marginBottom: 4,
+    ...typography.subtitle1,
+    color: colors.textSecondary,
+    marginBottom: spacing.md,
+    textAlign: "center",
   },
-  userLevel: {
-    fontSize: 16,
-    color: "#007AFF",
-    fontWeight: "600",
-    marginBottom: 4,
-  },
+
   joinDate: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 20,
+    ...typography.caption,
+    color: colors.textLight,
+    textAlign: "center",
   },
+
+  // XP Section
   xpSection: {
-    width: "100%",
-    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    ...shadows.large,
+    borderWidth: 0,
+    elevation: 8,
   },
+
   xpHeader: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: spacing.lg,
   },
+
   xpText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#FFD700",
-    marginLeft: 8,
+    ...typography.h4,
+    color: colors.text,
+    fontWeight: "600",
   },
-  progressBar: {
-    width: "100%",
-    height: 8,
-    backgroundColor: "#E0E0E0",
-    borderRadius: 4,
-    marginBottom: 8,
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: "#007AFF",
-    borderRadius: 4,
-  },
-  progressText: {
-    fontSize: 12,
-    color: "#666",
-  },
+
+  // Stats section
   statsSection: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    ...shadows.large,
+    borderWidth: 0,
+    elevation: 8,
   },
+
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 16,
+    ...typography.h4,
+    color: colors.text,
+    marginBottom: spacing.lg,
+    fontWeight: "600",
   },
+
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
+
   statCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 12,
-    padding: 16,
-    width: "48%",
+    backgroundColor: colors.backgroundLight,
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
     alignItems: "center",
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    width: "48%",
+    marginBottom: spacing.lg,
+    ...shadows.medium,
+    elevation: 6,
+    borderWidth: 0,
   },
+
   statNumber: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
-    marginTop: 8,
-    marginBottom: 4,
+    ...typography.h3,
+    color: colors.text,
+    marginBottom: spacing.xs,
+    fontWeight: "700",
   },
+
   statLabel: {
-    fontSize: 12,
-    color: "#666",
+    ...typography.subtitle2,
+    color: colors.textLight,
     textAlign: "center",
+    fontWeight: "500",
   },
+
+  // Achievements section
   achievementsSection: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    ...shadows.large,
+    borderWidth: 0,
+    elevation: 8,
   },
+
+  achievementCount: {
+    ...typography.subtitle1,
+    color: colors.textSecondary,
+    fontWeight: "500",
+  },
+
   achievementsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
+
   achievementCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 12,
-    padding: 16,
-    width: "30%",
+    backgroundColor: colors.backgroundLight,
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
     alignItems: "center",
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    width: "48%",
+    marginBottom: spacing.lg,
+    ...shadows.medium,
+    elevation: 6,
+    borderWidth: 0,
   },
-  lockedAchievement: {
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
-  },
+
   achievementIcon: {
-    fontSize: 24,
-    marginBottom: 8,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
+    ...shadows.small,
   },
-  lockedIcon: {
+
+  achievementTitle: {
+    ...typography.subtitle2,
+    color: colors.text,
+    textAlign: "center",
+    marginBottom: spacing.xs,
+    fontWeight: "600",
+  },
+
+  earnedBadge: {
+    backgroundColor: colors.success,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    marginTop: spacing.sm,
+    ...shadows.small,
+  },
+
+  earnedText: {
+    ...typography.caption,
+    color: colors.surface,
+    fontWeight: "600",
+  },
+
+  lockedAchievement: {
     opacity: 0.5,
   },
-  achievementTitle: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#333",
-    textAlign: "center",
+
+  lockedIcon: {
+    backgroundColor: colors.textLight,
   },
+
   lockedText: {
-    color: "#999",
+    color: colors.textLight,
   },
-  recentSection: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
+
+  tapHint: {
+    ...typography.body2,
+    color: colors.textLight,
+    textAlign: "center",
+    marginTop: spacing.lg,
+    fontStyle: "italic",
   },
-  discoveryItem: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 12,
-    padding: 15,
+
+  cardHint: {
+    ...typography.body2,
+    color: colors.textLight,
+    fontStyle: "italic",
+  },
+
+  // Logout section
+  logoutCard: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+    ...shadows.large,
+    borderWidth: 0,
+    elevation: 8,
+  },
+
+  cardRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    justifyContent: "center",
   },
-  discoveryInfo: {
+
+  cardLabel: {
+    ...typography.h6,
+    color: colors.text,
+    marginLeft: spacing.md,
+    fontWeight: "600",
+  },
+
+  bottomSpacing: {
+    height: spacing.massive * 2,
+  },
+
+  // Profile card
+  profileCard: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    alignItems: "center",
+    ...shadows.medium,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.lg,
+  },
+
+  profileImageText: {
+    ...typography.h2,
+    color: colors.surface,
+  },
+
+  profileName: {
+    ...typography.h3,
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+
+  profileEmail: {
+    ...typography.body1,
+    color: colors.textSecondary,
+    marginBottom: spacing.lg,
+  },
+
+  // User info cards
+  infoCard: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    ...shadows.medium,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+
+  infoCardTitle: {
+    ...typography.h5,
+    color: colors.text,
+    marginBottom: spacing.lg,
+  },
+
+  // Stats
+  statsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: spacing.xl,
+  },
+
+  statItem: {
+    alignItems: "center",
     flex: 1,
-    marginLeft: 15,
   },
-  discoveryTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#333",
+
+  statValue: {
+    ...typography.h3,
+    color: colors.text,
+    marginBottom: spacing.xs,
   },
-  discoveryLocation: {
-    fontSize: 12,
-    color: "#666",
+
+  // Level and progress
+  levelContainer: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    ...shadows.medium,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
-  discoveryDate: {
-    fontSize: 12,
-    color: "#999",
-  },
-  actionsSection: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  actionButton: {
+
+  levelHeader: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginBottom: spacing.lg,
   },
-  logoutButton: {
-    backgroundColor: "rgba(255, 59, 48, 0.1)",
+
+  levelText: {
+    ...typography.h5,
+    color: colors.text,
   },
-  actionText: {
-    fontSize: 16,
-    color: "#007AFF",
-    marginLeft: 12,
+
+  levelBadge: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.round,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    ...shadows.medium,
+    elevation: 6,
+    minWidth: 60,
+  },
+
+  levelBadgeText: {
+    ...typography.h6,
+    color: colors.surface,
+    fontWeight: "700",
+  },
+
+  progressContainer: {
+    marginBottom: spacing.lg,
+  },
+
+  progressLabel: {
+    ...typography.subtitle1,
+    color: colors.text,
+    marginBottom: spacing.sm,
     fontWeight: "500",
   },
-  logoutText: {
-    color: "#FF3B30",
+
+  progressBar: {
+    height: 12,
+    backgroundColor: colors.borderLight,
+    borderRadius: borderRadius.md,
+    overflow: "hidden",
+    marginBottom: spacing.sm,
+    ...shadows.small,
   },
-  actionContent: {
+
+  progressFill: {
+    height: "100%",
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
+    ...shadows.small,
+  },
+
+  progressText: {
+    ...typography.body2,
+    color: colors.textLight,
+    textAlign: "center",
+    fontWeight: "500",
+  },
+
+  // Action buttons
+  actionButton: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.round,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.lg,
+    ...shadows.medium,
+  },
+
+  actionButtonText: {
+    ...typography.button,
+    color: colors.surface,
+    marginLeft: spacing.sm,
+  },
+
+  secondaryActionButton: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: colors.primary,
+    marginBottom: spacing.lg,
+  },
+
+  secondaryActionButtonText: {
+    ...typography.button,
+    color: colors.primary,
+    marginLeft: spacing.sm,
+  },
+
+  // Edit profile modal
+  modalOverlay: {
     flex: 1,
+    backgroundColor: colors.overlay,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: spacing.xl,
   },
-  actionSubtext: {
-    fontSize: 14,
-    color: "#888",
+
+  modalContent: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    width: "100%",
+    maxHeight: "80%",
+    ...shadows.xl,
   },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    marginHorizontal: 20,
-    marginVertical: 100,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
+
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    marginBottom: spacing.lg,
+    paddingBottom: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5E5",
-  },
-  modalCancel: {
-    fontSize: 16,
-    color: "#007AFF",
-    fontWeight: "500",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-  },
-  modalSave: {
-    fontSize: 16,
-    color: "#007AFF",
-    fontWeight: "600",
-  },
-  modalContent: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#333",
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#E5E5E5",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: "#F8F8F8",
+    borderBottomColor: colors.border,
   },
 
-  // Friends Section Styles
-  friendsSection: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    padding: 24,
-    marginHorizontal: 24,
-    marginBottom: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 8,
+  modalTitle: {
+    ...typography.h5,
+    color: colors.text,
+  },
+
+  modalCloseButton: {
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.backgroundLight,
+  },
+
+  // Form inputs
+  inputContainer: {
+    marginBottom: spacing.lg,
+  },
+
+  inputLabel: {
+    ...typography.subtitle2,
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+
+  textInput: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    ...typography.body1,
+    color: colors.text,
     borderWidth: 1,
-    borderColor: "#F3F4F6",
+    borderColor: colors.border,
   },
-  manageFriendsButton: {
-    flexDirection: "row",
+
+  textInputFocused: {
+    borderColor: colors.primary,
+    ...shadows.small,
+  },
+
+  // Empty states
+  emptyContainer: {
     alignItems: "center",
-    backgroundColor: "#F0F8FF",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    gap: 4,
+    paddingVertical: spacing.huge,
+    paddingHorizontal: spacing.xl,
   },
-  manageFriendsText: {
-    color: "#007AFF",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  friendsList: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  friendItem: {
-    alignItems: "center",
-    width: "30%",
-    minWidth: 80,
-  },
-  friendAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginBottom: 6,
-  },
-  friendAvatarPlaceholder: {
-    backgroundColor: "#007AFF",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  friendAvatarText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  friendName: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#1F2937",
+
+  emptyText: {
+    ...typography.body1,
+    color: colors.textLight,
     textAlign: "center",
-    marginBottom: 2,
-  },
-  friendLevel: {
-    fontSize: 10,
-    color: "#8E8E93",
-    textAlign: "center",
-  },
-  moreFriendsItem: {
-    alignItems: "center",
-    width: "30%",
-    minWidth: 80,
-  },
-  moreFriendsCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#F3F4F6",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 6,
-    borderWidth: 2,
-    borderColor: "#E5E7EB",
-    borderStyle: "dashed",
-  },
-  moreFriendsText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#8E8E93",
-  },
-  moreFriendsLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#1F2937",
-    textAlign: "center",
-    marginBottom: 2,
-  },
-  emptyFriendsContainer: {
-    alignItems: "center",
-    padding: 30,
-    backgroundColor: "#F8F9FA",
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: "#E5E7EB",
-    borderStyle: "dashed",
-  },
-  emptyFriendsText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#8E8E93",
-    marginTop: 12,
-    marginBottom: 4,
-  },
-  emptyFriendsSubtext: {
-    fontSize: 14,
-    color: "#8E8E93",
-    textAlign: "center",
+    marginTop: spacing.lg,
   },
 });
+
+export default profileStyles;

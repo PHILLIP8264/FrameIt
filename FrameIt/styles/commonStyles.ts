@@ -1,172 +1,422 @@
 import { StyleSheet } from "react-native";
 
-// Common colors used throughout the app
+// Comprehensive Design System Colors
 export const colors = {
-  primary: "#4F46E5",
-  secondary: "#6B7280",
+  // Primary Brand Colors
+  primary: "#137CD8",
+  primaryLight: "#3B92E8",
+  primaryDark: "#0F5BA8",
+  secondary: "#D61A66",
+  secondaryLight: "#E8327B",
+  secondaryDark: "#B11452",
+
+  // Neutral Colors
   background: "#FFFFFF",
   backgroundLight: "#F8F9FA",
-  gold: "#F59E0B",
-  green: "#10B981",
-  orange: "#F97316",
+  backgroundDark: "#F1F3F4",
+  surface: "#FFFFFF",
+  surfaceElevated: "#FFFFFF",
+
+  // Text Colors
   text: "#1F2937",
-  lightText: "#6B7280",
-  error: "#DC2626",
-  transparent: "transparent",
+  textSecondary: "#6B7280",
+  textLight: "#9CA3AF",
+  textDisabled: "#D1D5DB",
+
+  // Semantic Colors
+  success: "#10B981",
+  successLight: "#34D399",
+  warning: "#F59E0B",
+  warningLight: "#FBBF24",
+  error: "#EF4444",
+  errorLight: "#F87171",
+  info: "#3B82F6",
+  infoLight: "#60A5FA",
+
+  // Special Colors
+  gold: "#F59E0B",
+  xp: "#F59E0B",
+  level: "#8B5CF6",
+
+  // Border Colors
   border: "#E5E7EB",
   borderLight: "#F3F4F6",
+  borderDark: "#D1D5DB",
+
+  // Overlay Colors
+  overlay: "rgba(0, 0, 0, 0.5)",
+  overlayLight: "rgba(0, 0, 0, 0.3)",
+  transparent: "transparent",
 };
 
-// Common style patterns used across multiple screens
-export const commonStyles = StyleSheet.create({
-  // Container styles
-  screenContainer: {
-    flex: 1,
-    backgroundColor: colors.transparent,
-    padding: 24,
+export const typography = {
+  // Headings
+  h1: { fontSize: 32, fontWeight: "bold" as const, lineHeight: 40 },
+  h2: { fontSize: 28, fontWeight: "bold" as const, lineHeight: 36 },
+  h3: { fontSize: 24, fontWeight: "bold" as const, lineHeight: 32 },
+  h4: { fontSize: 20, fontWeight: "600" as const, lineHeight: 28 },
+  h5: { fontSize: 18, fontWeight: "600" as const, lineHeight: 24 },
+  h6: { fontSize: 16, fontWeight: "600" as const, lineHeight: 22 },
+
+  // Body Text
+  body1: { fontSize: 16, fontWeight: "400" as const, lineHeight: 24 },
+  body2: { fontSize: 14, fontWeight: "400" as const, lineHeight: 20 },
+
+  // UI Text
+  subtitle1: { fontSize: 16, fontWeight: "500" as const, lineHeight: 22 },
+  subtitle2: { fontSize: 14, fontWeight: "500" as const, lineHeight: 20 },
+  caption: { fontSize: 12, fontWeight: "400" as const, lineHeight: 16 },
+  overline: {
+    fontSize: 10,
+    fontWeight: "600" as const,
+    lineHeight: 16,
+    textTransform: "uppercase" as const,
   },
 
-  // Card styles
-  card: {
-    backgroundColor: colors.background,
-    borderRadius: 20,
-    padding: 24,
-    marginBottom: 24,
+  // Button Text
+  button: { fontSize: 16, fontWeight: "600" as const, lineHeight: 20 },
+  buttonSmall: { fontSize: 14, fontWeight: "600" as const, lineHeight: 18 },
+};
+
+// Design System Spacing
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
+  huge: 40,
+  massive: 48,
+};
+
+// Design System Border Radius
+export const borderRadius = {
+  none: 0,
+  sm: 4,
+  md: 8,
+  lg: 12,
+  xl: 16,
+  xxl: 20,
+  round: 24,
+  circle: 50,
+};
+
+// Design System Shadows
+export const shadows = {
+  small: {
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 8,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-
-  smallCard: {
-    backgroundColor: colors.background,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+  medium: {
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
     elevation: 4,
+  },
+  large: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  xl: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+};
+
+// Standardized Common Styles
+export const commonStyles = StyleSheet.create({
+  // Container Styles
+  screenContainer: {
+    flex: 1,
+    backgroundColor: colors.backgroundLight,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
+  },
+
+  safeAreaContainer: {
+    flex: 1,
+    backgroundColor: colors.backgroundLight,
+  },
+
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: spacing.xxl,
+  },
+
+  // Card Styles (Standardized)
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    ...shadows.medium,
     borderWidth: 1,
     borderColor: colors.borderLight,
   },
 
-  // Text styles
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
+  cardSmall: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    ...shadows.small,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+
+  cardLarge: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xxl,
+    padding: spacing.xxl,
+    marginBottom: spacing.xxl,
+    ...shadows.large,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+
+  // Header Styles (Standardized)
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+
+  headerTitle: {
+    ...typography.h4,
     color: colors.text,
-    marginBottom: 8,
+    textAlign: "center",
+  },
+
+  headerSubtitle: {
+    ...typography.subtitle2,
+    color: colors.textSecondary,
+    textAlign: "center",
+    marginTop: spacing.xs,
+  },
+
+  backButton: {
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.backgroundLight,
+  },
+
+  // Typography Styles (Standardized)
+  title: {
+    ...typography.h3,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
 
   subtitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+    ...typography.h5,
     color: colors.text,
-    marginBottom: 15,
+    marginBottom: spacing.md,
   },
 
   bodyText: {
-    fontSize: 16,
-    color: colors.lightText,
-    lineHeight: 22,
+    ...typography.body1,
+    color: colors.textSecondary,
   },
 
-  smallText: {
-    fontSize: 12,
-    color: colors.lightText,
+  caption: {
+    ...typography.caption,
+    color: colors.textLight,
   },
 
-  // Button styles
+  // Button Styles (Standardized)
   primaryButton: {
     backgroundColor: colors.primary,
-    borderRadius: 24,
-    padding: 20,
+    borderRadius: borderRadius.round,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 20,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 8,
+    marginBottom: spacing.lg,
+    ...shadows.medium,
   },
 
   primaryButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "700",
-    marginLeft: 10,
-    letterSpacing: 0.3,
+    ...typography.button,
+    color: colors.surface,
+    marginLeft: spacing.sm,
   },
 
   secondaryButton: {
-    backgroundColor: colors.background,
-    borderRadius: 20,
-    padding: 18,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
     borderColor: colors.primary,
+    marginBottom: spacing.lg,
   },
 
   secondaryButtonText: {
+    ...typography.button,
     color: colors.primary,
-    fontSize: 14,
-    fontWeight: "bold",
-    marginLeft: 8,
+    marginLeft: spacing.sm,
   },
 
-  // Badge styles
+  smallButton: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  smallButtonText: {
+    ...typography.buttonSmall,
+    color: colors.surface,
+    marginLeft: spacing.xs,
+  },
+
+  // Badge Styles
   levelBadge: {
     backgroundColor: colors.primary,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    borderRadius: borderRadius.round,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    ...shadows.small,
   },
 
   levelBadgeText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
+    ...typography.buttonSmall,
+    color: colors.surface,
   },
 
-  // Progress bar styles
+  statusBadge: {
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+
+  statusBadgeText: {
+    ...typography.caption,
+    fontWeight: "600",
+  },
+
+  // Form Input Styles
+  inputContainer: {
+    marginBottom: spacing.lg,
+  },
+
+  inputLabel: {
+    ...typography.subtitle2,
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+
+  textInput: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    ...typography.body1,
+    color: colors.text,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+
+  textInputFocused: {
+    borderColor: colors.primary,
+    ...shadows.small,
+  },
+
+  textInputError: {
+    borderColor: colors.error,
+  },
+
+  // Progress Bar Styles
   progressBar: {
     height: 8,
-    backgroundColor: "#E0E0E0",
-    borderRadius: 4,
-    marginBottom: 8,
+    backgroundColor: colors.borderLight,
+    borderRadius: borderRadius.sm,
+    overflow: "hidden",
+    marginBottom: spacing.sm,
   },
 
   progressFill: {
     height: "100%",
     backgroundColor: colors.primary,
-    borderRadius: 4,
+    borderRadius: borderRadius.sm,
   },
 
-  // Stat styles
+  // Avatar Styles
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  avatarSmall: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  avatarLarge: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  avatarText: {
+    ...typography.buttonSmall,
+    color: colors.surface,
+  },
+
+  // Stat Styles
+  statContainer: {
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+  },
+
   statValue: {
-    fontSize: 20,
-    fontWeight: "bold",
+    ...typography.h4,
     color: colors.text,
-    marginTop: 8,
+    marginBottom: spacing.xs,
   },
 
   statLabel: {
-    fontSize: 12,
-    color: colors.lightText,
+    ...typography.caption,
+    color: colors.textLight,
     textAlign: "center",
-    marginTop: 4,
   },
 
-  // Layout helpers
+  // Layout Helpers
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -185,5 +435,88 @@ export const commonStyles = StyleSheet.create({
 
   flex1: {
     flex: 1,
+  },
+
+  // Loading & Empty States
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.backgroundLight,
+  },
+
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: spacing.huge,
+    paddingHorizontal: spacing.xl,
+  },
+
+  emptyStateText: {
+    ...typography.body1,
+    color: colors.textLight,
+    textAlign: "center",
+    marginTop: spacing.lg,
+  },
+
+  // Section Styles
+  section: {
+    marginBottom: spacing.xxl,
+  },
+
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.lg,
+  },
+
+  sectionTitle: {
+    ...typography.h5,
+    color: colors.text,
+  },
+
+  sectionSubtitle: {
+    ...typography.body2,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+  },
+
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: colors.overlay,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: spacing.xl,
+  },
+
+  modalContent: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    width: "100%",
+    maxHeight: "80%",
+    ...shadows.xl,
+  },
+
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.lg,
+    paddingBottom: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+
+  modalTitle: {
+    ...typography.h5,
+    color: colors.text,
+  },
+
+  modalCloseButton: {
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.backgroundLight,
   },
 });

@@ -16,7 +16,13 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.phillip12.FrameIt"
     },
     "web": {
       "bundler": "metro",
@@ -43,12 +49,6 @@
         }
       ],
       [
-        "react-native-maps",
-        {
-          "enableGoogleMaps": "true"
-        }
-      ],
-      [
         "expo-image-picker",
         {
           "photosPermission": "Allow FrameIt to access your photo library to select profile photos.",
@@ -58,6 +58,9 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {}
     }
   }
 }

@@ -75,6 +75,7 @@ export interface User {
   signedUpDate: Date;
   tag: string | null;
   xp: number;
+  totalXP?: number; // Total XP earned (for tag requirements)
   profileImageUrl: string;
   streakCount: number;
   level: number;
@@ -82,6 +83,31 @@ export interface User {
   friendRequests?: FriendRequest[];
   notificationSettings?: NotificationSettings;
   privacySettings?: PrivacySettings;
+
+  // Activity tracking fields
+  lastActiveDate?: Date;
+  lastLoginDate?: Date;
+  sessionCount?: number;
+  totalSessionTime?: number; // in minutes
+  averageSessionTime?: number; // in minutes
+  location?: {
+    country?: string;
+    region?: string;
+    city?: string;
+    coordinates?: {
+      latitude: number;
+      longitude: number;
+    };
+  };
+
+  // Achievement-based tag system
+  achievements?: string[]; // Array of earned achievement IDs
+  unlockedTags?: string[]; // Array of unlocked tag IDs
+  tagUnlockHistory?: {
+    tagId: string;
+    unlockedAt: string;
+    triggerAchievement?: string;
+  }[];
 }
 
 // Teams Collection
@@ -128,6 +154,22 @@ export interface Tag {
   id: string;
   name: string;
   description: string;
+  icon: string;
+  color: string;
+  requirements: {
+    achievements?: string[]; // Achievement IDs required
+    questsCompleted?: number; // Minimum quests completed
+    totalXP?: number; // Minimum XP required
+    votes?: number; // Minimum votes received
+    streakDays?: number; // Minimum streak days
+    customConditions?: string[]; // For special admin-defined conditions
+  };
+  rarity: "common" | "rare" | "epic" | "legendary";
+  unlockedMessage: string; // Message shown when tag is unlocked
+  createdBy: string; // User ID of admin who created it
+  createdAt: string;
+  isActive: boolean; // Admins can enable/disable tags
+  isDefault: boolean; // System default tags vs admin-created
 }
 
 // Achievements Collection
@@ -242,10 +284,298 @@ export interface Submission {
   questId: string;
   timestamp: Date;
   votes: number;
+  moderationStatus?: "approved" | "rejected" | "pending_review";
+  moderationResult?: {
+    isAppropriate: boolean;
+    confidence: number;
+    categories: {
+      adult:
+        | "VERY_UNLIKELY"
+        | "UNLIKELY"
+        | "POSSIBLE"
+        | "LIKELY"
+        | "VERY_LIKELY";
+      violence:
+        | "VERY_UNLIKELY"
+        | "UNLIKELY"
+        | "POSSIBLE"
+        | "LIKELY"
+        | "VERY_LIKELY";
+      racy:
+        | "VERY_UNLIKELY"
+        | "UNLIKELY"
+        | "POSSIBLE"
+        | "LIKELY"
+        | "VERY_LIKELY";
+    };
+    reason?: string;
+  };
 }
 
 // Votes Subcollection
 export interface Vote {
   userId: string;
   timestamp: Date;
+}
+
+// Daily Contest Collection
+export interface DailyContest {
+  contestId: string; // Format: YYYY-MM-DD
+  date: string; // YYYY-MM-DD
+  status: "upcoming" | "voting" | "completed";
+  votingStartTime: string; // "18:00"
+  votingEndTime: string; // "00:00"
+  globalSubmissions: string[]; // submission IDs
+  teamContests?: {
+    [teamId: string]: {
+      submissions: string[];
+      votingPeriod?: {
+        start: string;
+        end: string;
+      };
+    };
+  };
+  winners?: {
+    global?: {
+      [category: string]: {
+        winnerId: string;
+        submissionId: string;
+        finalScore: number;
+      };
+    };
+    teams?: {
+      [teamId: string]: {
+        [category: string]: {
+          winnerId: string;
+          submissionId: string;
+          finalScore: number;
+        };
+      };
+    };
+  };
+}
+
+// Submission Votes Collection
+export interface SubmissionVote {
+  voteId: string;
+  submissionId: string;
+  voterId: string;
+  contestId: string; // YYYY-MM-DD
+  votingContext: "global" | "team";
+  teamId?: string; // if voting context is team
+
+  // Photo quality rating (1-5 stars)
+  photoQualityRating: number;
+
+  // Requirement votes (yes/no for each requirement)
+  requirementVotes: {
+    [requirementKey: string]: boolean; // e.g., "hasStreetArt": true
+  };
+
+  // Calculated scores
+  requirementScore: number; // number of requirements met
+  totalRequirements: number; // total number of requirements
+  finalScore: number; // weighted combination of quality + requirements
+
+  timestamp: Date;
+
+  // Prevent changes
+  isLocked: boolean;
+}
+
+// Enhanced Submission interface for voting
+export interface VotingSubmission extends Submission {
+  // User information
+  userName?: string;
+  userProfilePhoto?: string;
+  userDisplayName?: string;
+
+  // Additional voting-specific data
+  questTitle: string;
+  questCategory: string;
+  questRequirements: {
+    [key: string]: {
+      description: string;
+      type: "subject" | "style" | "time" | "technical";
+    };
+  };
+
+  // Voting results
+  totalVotes: number;
+  averageQualityRating: number;
+  requirementScores: {
+    [requirementKey: string]: {
+      yesVotes: number;
+      totalVotes: number;
+      percentage: number;
+    };
+  };
+  overallScore: number;
+
+  // Contest info
+  contestId: string;
+  isEligibleForVoting: boolean;
+}
+
+// Engagement tracking interfaces
+export interface Engagement {
+  engagementId: string;
+  type: "like" | "comment" | "share" | "report";
+  targetType: "quest" | "submission" | "user" | "team";
+  targetId: string;
+  userId: string;
+  timestamp: Date;
+  content?: string; // for comments
+  reportReason?: string; // for reports
+}
+
+// App Analytics interface
+export interface AppAnalytics {
+  date: string; // YYYY-MM-DD
+  dailyActiveUsers: number;
+  newUserSignups: number;
+  questsCompleted: number;
+  submissionsCreated: number;
+  engagementActions: {
+    likes: number;
+    comments: number;
+    shares: number;
+    reports: number;
+  };
+  sessionMetrics: {
+    averageSessionTime: number;
+    totalSessions: number;
+  };
+  retentionMetrics: {
+    day1: number;
+    day7: number;
+    day30: number;
+  };
+}
+
+// Communication interfaces
+export interface Communication {
+  id: string;
+  type: "announcement" | "notification" | "email" | "alert";
+  title: string;
+  content: string;
+  targetAudience: "all" | "active" | "teams" | "specific";
+  targetUserIds?: string[]; // for specific targeting
+  scheduledDate?: Date;
+  sentAt?: Date;
+  createdBy: string; // admin user ID
+  status: "draft" | "scheduled" | "sent" | "failed";
+  stats: {
+    sent: number;
+    delivered: number;
+    opened: number;
+    clicked: number;
+    failed: number;
+  };
+  metadata?: {
+    templateId?: string;
+    campaignId?: string;
+    tags?: string[];
+  };
+}
+
+export interface CommunicationTemplate {
+  id: string;
+  name: string;
+  type: "announcement" | "notification" | "email" | "alert";
+  title: string;
+  content: string;
+  description?: string;
+  category:
+    | "achievement"
+    | "quest"
+    | "team"
+    | "event"
+    | "general"
+    | "maintenance";
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  usageCount: number;
+}
+
+// Team Challenge Interface
+export interface TeamChallenge {
+  challengeId: string;
+  teamId: string;
+  title: string;
+  description: string;
+  type: "xp" | "quests" | "locations" | "time";
+  targetValue: number;
+  currentValue: number;
+  progress: number; // Calculated percentage (0-100)
+  participants: string[]; // User IDs participating
+  startDate: Date;
+  deadline: Date;
+  isActive: boolean;
+  status: "active" | "completed" | "failed" | "paused";
+  reward?: string;
+  createdBy: string; // Team leader user ID
+  createdAt: Date;
+  completedAt?: Date;
+  metadata: {
+    difficulty: "easy" | "medium" | "hard";
+    category:
+      | "team_building"
+      | "skill_development"
+      | "exploration"
+      | "competition";
+    tags: string[];
+  };
+  statistics: {
+    totalParticipants: number;
+    activeParticipants: number;
+    completionRate: number;
+    averageContribution: number;
+    completedBy: string[]; // User IDs who completed the challenge
+    topContributors: { userId: string; contribution: number }[];
+  };
+}
+
+// Team Challenge Participation Interface
+export interface TeamChallengeParticipation {
+  participationId: string;
+  challengeId: string;
+  userId: string;
+  teamId: string;
+  contribution: number; // User's contribution to the challenge
+  joinedAt: Date;
+  lastUpdated: Date;
+  isActive: boolean;
+  personalGoal?: number; // Optional personal goal within team challenge
+  personalProgress?: number;
+}
+
+// Team Activity Interface for recent activities tracking
+export interface TeamActivity {
+  activityId: string;
+  teamId: string;
+  type:
+    | "member_joined"
+    | "member_left"
+    | "challenge_created"
+    | "challenge_completed"
+    | "challenge_deleted"
+    | "quest_created"
+    | "quest_completed"
+    | "quest_deleted"
+    | "team_created"
+    | "progress_update";
+  description: string;
+  userId: string;
+  userName: string;
+  timestamp: Date;
+  metadata?: {
+    challengeId?: string;
+    challengeName?: string;
+    questId?: string;
+    questName?: string;
+    xpAmount?: number;
+    progressValue?: number;
+  };
 }

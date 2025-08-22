@@ -7,7 +7,7 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
 } from "firebase/auth";
-import SwipeButton, { SwipeButtonRef } from "../SwipeButton";
+import SwipeButton, { SwipeButtonRef } from "../shared/SwipeButton";
 
 interface PasswordModalProps {
   visible: boolean;

@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider } from "../contexts/AuthContext";
 import { useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
+import NotificationService from "../services/NotificationService";
 
 export default function RootLayout() {
   useEffect(() => {
@@ -12,6 +13,9 @@ export default function RootLayout() {
       try {
         // Keep the splash screen visible while it fetch resources
         await SplashScreen.preventAutoHideAsync();
+
+        // Initialize notification service
+        await NotificationService.initialize();
 
         // Pre-load fonts, make any API calls here
         // Simulate some loading time

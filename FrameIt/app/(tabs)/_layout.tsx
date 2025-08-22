@@ -7,9 +7,11 @@ import {
   StyleSheet,
   Text,
   SafeAreaView,
+  Image,
+  ImageBackground,
 } from "react-native";
 import { router } from "expo-router";
-import AuthGuard from "../../components/AuthGuard";
+import AuthGuard from "../../components/auth/AuthGuard";
 import { useAuth } from "../../contexts/AuthContext";
 
 function ProfileButton() {
@@ -25,7 +27,7 @@ function ProfileButton() {
   return (
     <TouchableOpacity
       style={styles.profileButton}
-      onPress={() => router.push("/profile")}
+      onLongPress={() => router.push("/profile")}
     >
       <View style={styles.profileAvatar}>
         <Text style={styles.profileAvatarText}>{initials}</Text>
@@ -46,67 +48,89 @@ function CustomHeader({ title }: { title: string }) {
 export default function TabLayout() {
   return (
     <AuthGuard>
-      <Tabs
-        screenOptions={{
-          tabBarActiveTintColor: "#007AFF",
-          headerShown: false,
-          tabBarStyle: {
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-          },
-          sceneStyle: { backgroundColor: "transparent" },
-          tabBarHideOnKeyboard: true,
-        }}
+      <ImageBackground
+        source={require("../../assets/images/blank.png")}
+        style={styles.backgroundImage}
+        imageStyle={styles.backgroundImageStyle}
       >
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: "Explore",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="compass-outline" size={size} color={color} />
-            ),
-            header: () => <CustomHeader title="FrameIt Explorer" />,
-            headerShown: true,
+        <Tabs
+          screenOptions={{
+            tabBarActiveTintColor: "#007AFF",
+            headerShown: false,
+            tabBarStyle: {
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+            },
+            sceneStyle: { backgroundColor: "transparent" },
+            tabBarHideOnKeyboard: true,
           }}
-        />
-        <Tabs.Screen
-          name="challenges"
-          options={{
-            title: "Quests",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="map-outline" size={size} color={color} />
-            ),
-            header: () => <CustomHeader title="Active Quests" />,
-            headerShown: true,
-          }}
-        />
-        <Tabs.Screen
-          name="gallery"
-          options={{
-            title: "Discoveries",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="camera-outline" size={size} color={color} />
-            ),
-            header: () => <CustomHeader title="Your Discoveries" />,
-            headerShown: true,
-          }}
-        />
-        <Tabs.Screen
-          name="leaderboard"
-          options={{
-            title: "Rankings",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="trophy-outline" size={size} color={color} />
-            ),
-            header: () => <CustomHeader title="Rankings" />,
-            headerShown: true,
-          }}
-        />
-      </Tabs>
+        >
+          <Tabs.Screen
+            name="index"
+            options={{
+              title: "Explore",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="compass-outline" size={size} color={color} />
+              ),
+              header: () => <CustomHeader title="FrameIt Explorer" />,
+              headerShown: true,
+            }}
+          />
+          <Tabs.Screen
+            name="challenges"
+            options={{
+              title: "Quests",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="map-outline" size={size} color={color} />
+              ),
+              header: () => <CustomHeader title="Active Quests" />,
+              headerShown: true,
+            }}
+          />
+          <Tabs.Screen
+            name="gallery"
+            options={{
+              title: "Discoveries",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="camera-outline" size={size} color={color} />
+              ),
+              header: () => <CustomHeader title="Your Discoveries" />,
+              headerShown: true,
+            }}
+          />
+          <Tabs.Screen
+            name="contest"
+            options={{
+              title: "Contest",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="ribbon-outline" size={size} color={color} />
+              ),
+              header: () => <CustomHeader title="Daily Contest" />,
+              headerShown: true,
+            }}
+          />
+          <Tabs.Screen
+            name="leaderboard"
+            options={{
+              title: "Rankings",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="trophy-outline" size={size} color={color} />
+              ),
+              header: () => <CustomHeader title="Rankings" />,
+              headerShown: true,
+            }}
+          />
+        </Tabs>
+      </ImageBackground>
     </AuthGuard>
   );
 }
-
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+  },
+  backgroundImageStyle: {
+    opacity: 0.1,
+  },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",

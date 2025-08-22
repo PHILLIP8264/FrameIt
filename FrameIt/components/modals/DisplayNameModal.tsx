@@ -12,7 +12,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
-import SwipeButton, { SwipeButtonRef } from "../SwipeButton";
+import SwipeButton, { SwipeButtonRef } from "../shared/SwipeButton";
 
 interface DisplayNameModalProps {
   visible: boolean;
